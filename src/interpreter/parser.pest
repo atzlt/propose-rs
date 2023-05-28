@@ -1,0 +1,67 @@
+main = {
+    SOI ~ file_line* ~ EOI
+}
+
+file_line = _{ (decl_line | config_line | save_file) ~ ";" }
+
+decl_line =  { decl_left ~ "=" ~ (coord | expr | eval) }
+decl_left = _{ direct | destruct }
+direct    =  { any_id }
+destruct  =  { any_id ~ "," ~ any_id }
+
+expr   =  { method ~ args }
+method = @{
+    (ASCII_ALPHA | "#" | "@" | "*" | "<" | "-" | ">" | "!" | "?" | "/" | "\\" | "|")+
+}
+args   =  { (arg ~ ",")* ~ arg }
+
+arg = _{
+    trig
+  | line_2p
+  | circ_3p
+  | circ_or
+  | circ_oa
+  | point_id
+  | common_id
+  | rich_number
+  | eval
+}
+
+config_line  =  { "config" ~ (config ~ ",")* ~ config }
+config       =  { config_name ~ "=" ~ config_value }
+config_name  = @{ ASCII_ALPHA_LOWER+ }
+config_value =  { rich_number | boolean | string }
+
+save_file = { "save" ~ raw_string }
+
+trig    = ${ point_id ~ point_id ~ point_id }
+line_2p = ${ point_id ~ point_id }
+circ_3p =  { "@(" ~ point_id ~ point_id ~ point_id ~ ")" }
+circ_or =  { "@(" ~ point_id ~ number ~ ")" }
+circ_oa =  { "@(" ~ point_id ~ point_id ~ ")" }
+
+coord       = _{ "(" ~ (ortho_coord | polar_coord) ~ ")" }
+ortho_coord =  { number ~ "," ~ number }
+polar_coord =  { rich_number ~ "," ~ number }
+
+eval       = _{ "$" ~ eval_inner ~ "$" }
+eval_inner =  { (!"$" ~ ANY)* }
+
+raw_string  = @{ (!(NEWLINE | ";") ~ ANY)* }
+rich_number = _{ degree | number }
+boolean     =  { "true" | "false" }
+degree      = @{ number ~ "deg" }
+number      =  { ("+" | "-")? ~ ASCII_DIGIT+ ~ ("." ~ ASCII_DIGIT+)? }
+string      = ${ "\"" ~ inner ~ "\"" }
+inner       = @{ char* }
+char        =  {
+    !("\"" | "\\") ~ ANY
+  | "\\" ~ ("\"" | "\\" | "/" | "b" | "f" | "n" | "r" | "t")
+  | "\\" ~ ("u" ~ ASCII_HEX_DIGIT{4})
+}
+
+point_id  = @{ ASCII_ALPHA_UPPER ~ ASCII_ALPHA_LOWER* ~ "'"? }
+common_id = @{ (ASCII_ALPHA_LOWER | "_") ~ ASCII_ALPHA_LOWER* ~ "'"? }
+any_id    = _{ point_id | common_id }
+
+WHITESPACE = _{ (NEWLINE | " " | "\t")+ }
