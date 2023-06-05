@@ -2,7 +2,7 @@ main = {
     SOI ~ file_line* ~ EOI
 }
 
-file_line = _{ (decl_line | config_line | save_file) ~ ";" }
+file_line = _{ (draw | decor | decl_line | config_line | save_file) ~ ";" }
 
 decl_line =  { decl_left ~ "=" ~ (coord | expr | eval) }
 decl_left = _{ direct | destruct }
@@ -10,22 +10,26 @@ direct    =  { any_id }
 destruct  =  { any_id ~ "," ~ any_id }
 
 expr   =  { method ~ args }
-method = @{
-    (ASCII_ALPHA | "#" | "@" | "*" | "<" | "-" | ">" | "!" | "?" | "/" | "\\" | "|")+
-}
+method = @{ punc_alpha+ }
 args   =  { (arg ~ ",")* ~ arg }
 
 arg = _{
     trig
-  | line_2p
-  | circ_3p
-  | circ_or
-  | circ_oa
-  | point_id
-  | common_id
+  | common_obj
   | rich_number
   | eval
 }
+
+draw       =  { "draw" ~ (draw_obj ~ ",")* ~ draw_obj }
+decor      =  { "decor" ~ (decor_step ~ ",")* ~ decor_step }
+decor_step = _{ draw_obj ~ ":" ~ decoration }
+draw_obj   =  {
+    polygon
+  | arc
+  | arc_o
+  | common_obj
+}
+decoration = @{ punc_alpha+ }
 
 config_line  =  { "config" ~ (config ~ ",")* ~ config }
 config       =  { config_name ~ "=" ~ config_value }
@@ -34,11 +38,24 @@ config_value =  { rich_number | boolean | string }
 
 save_file = { "save" ~ raw_string }
 
-trig    = ${ point_id ~ point_id ~ point_id }
-line_2p = ${ point_id ~ point_id }
-circ_3p =  { "@(" ~ point_id ~ point_id ~ point_id ~ ")" }
-circ_or =  { "@(" ~ point_id ~ number ~ ")" }
-circ_oa =  { "@(" ~ point_id ~ point_id ~ ")" }
+trig       = ${ point_id ~ point_id ~ point_id }
+line_2p    =  { point_id ~ point_id }
+circ_3p    =  { "@(" ~ point_id ~ point_id ~ point_id ~ ")" }
+circ_or    =  { "@(" ~ point_id ~ "," ~ common_id ~ ")" }
+circ_oa    =  { "@(" ~ point_id ~ "," ~ point_id ~ ")" }
+circ_diam  =  { "@(" ~ point_id ~ point_id ~ ")" }
+polygon    = ${ point_id ~ "-" ~ (point_id ~ "-")+ ~ point_id }
+arc        = ${ point_id ~ "~" ~ point_id ~ "~" ~ point_id }
+arc_o      = ${ point_id ~ "~(" ~ point_id ~ ")~" ~ point_id }
+common_obj = _{
+    line_2p
+  | circ_3p
+  | circ_or
+  | circ_oa
+  | circ_diam
+  | point_id
+  | common_id
+}
 
 coord       = _{ "(" ~ (ortho_coord | polar_coord) ~ ")" }
 ortho_coord =  { number ~ "," ~ number }
@@ -52,16 +69,30 @@ rich_number = _{ degree | number }
 boolean     =  { "true" | "false" }
 degree      = @{ number ~ "deg" }
 number      =  { ("+" | "-")? ~ ASCII_DIGIT+ ~ ("." ~ ASCII_DIGIT+)? }
-string      = ${ "\"" ~ inner ~ "\"" }
-inner       = @{ char* }
+string      = ${ "\"" ~ str_inner ~ "\"" }
+str_inner   = @{ char* }
 char        =  {
     !("\"" | "\\") ~ ANY
   | "\\" ~ ("\"" | "\\" | "/" | "b" | "f" | "n" | "r" | "t")
   | "\\" ~ ("u" ~ ASCII_HEX_DIGIT{4})
 }
+punc_alpha  = _{
+    ASCII_ALPHA
+  | "#"
+  | "@"
+  | "*"
+  | "<"
+  | "-"
+  | ">"
+  | "!"
+  | "?"
+  | "/"
+  | "\\"
+  | "|"
+}
 
-point_id  = @{ ASCII_ALPHA_UPPER ~ ASCII_ALPHA_LOWER* ~ "'"? }
-common_id = @{ (ASCII_ALPHA_LOWER | "_") ~ ASCII_ALPHA_LOWER* ~ "'"? }
+point_id  = @{ ASCII_ALPHA_UPPER ~ (ASCII_ALPHA_LOWER | ASCII_DIGIT | "_")* ~ "'"? }
+common_id = @{ (ASCII_ALPHA_LOWER | "_") ~ (ASCII_ALPHA_LOWER | ASCII_DIGIT | "_")* ~ "'"? }
 any_id    = _{ point_id | common_id }
 
 WHITESPACE = _{ (NEWLINE | " " | "\t")+ }
