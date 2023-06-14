@@ -13,6 +13,7 @@ pub enum Linear {
 #[derive(Debug)]
 pub enum Numeric {
     Distance2P(Name, Name),
+    DistancePL(Name, Linear),
     Distance2L(Linear, Linear),
     Angle3P(Name, Name, Name),
     Angle2L(Linear, Linear),

@@ -66,12 +66,11 @@ common_obj =  {
   | any_id
 }
 
-linear      = { common_id | line_2p }
-distance_2p = { "|" ~ point_id ~ point_id ~ "|" }
-distance_2l = { "|(" ~ linear ~ "," ~ linear ~ ")|" }
+linear      = { line_2p | common_id }
+distance    = { ("|" ~ point_id ~ point_id ~ "|") | ("|(" ~ (linear | point_id) ~ "," ~ linear ~ ")|") }
 angle_3p    = { "<" ~ point_id ~ point_id ~ point_id }
 angle_2l    = { "<(" ~ linear ~ "," ~ linear ~ ")" }
-numeric     = { distance_2p | distance_2l | angle_3p | angle_2l | rich_number | common_id }
+numeric     = { distance | angle_3p | angle_2l | rich_number | common_id }
 
 coord       = { "(" ~ (ortho_coord | polar_coord) ~ ")" }
 ortho_coord = { numeric ~ "," ~ numeric }

@@ -107,17 +107,12 @@ impl ProposeParser {
         )
     }
     #[inline]
-    fn distance_2p(input: Node) -> Result<Numeric> {
+    fn distance(input: Node) -> Result<Numeric> {
         match_nodes!(
             input.into_children();
-            [point_id(a), point_id(b)] => Ok(Numeric::Distance2P(a, b))
-        )
-    }
-    #[inline]
-    fn distance_2l(input: Node) -> Result<Numeric> {
-        match_nodes!(
-            input.into_children();
-            [linear(a), linear(b)] => Ok(Numeric::Distance2L(a, b))
+            [point_id(a), point_id(b)] => Ok(Numeric::Distance2P(a, b)),
+            [point_id(a), linear(b)] => Ok(Numeric::DistancePL(a, b)),
+            [linear(a), linear(b)] => Ok(Numeric::Distance2L(a, b)),
         )
     }
     #[inline]
@@ -162,8 +157,7 @@ impl ProposeParser {
     fn numeric(input: Node) -> Result<Numeric> {
         match_nodes!(
             input.into_children();
-            [distance_2p(a)] => Ok(a),
-            [distance_2l(a)] => Ok(a),
+            [distance(a)] => Ok(a),
             [angle_3p(a)] => Ok(a),
             [angle_2l(a)] => Ok(a),
             [rich_number(a)] => Ok(Numeric::Number(a)),
