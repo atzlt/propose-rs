@@ -1,39 +1,35 @@
-#[derive(Debug)]
-pub enum Name {
-    Point(String),
-    Common(String),
-}
+use std::collections::HashMap;
 
 #[derive(Debug)]
 pub enum Linear {
-    Line2P(Name, Name),
-    Name(Name),
+    Line2P(String, String),
+    Name(String),
 }
 
 #[derive(Debug)]
 pub enum Numeric {
-    Distance2P(Name, Name),
-    DistancePL(Name, Linear),
+    Distance2P(String, String),
+    DistancePL(String, Linear),
     Distance2L(Linear, Linear),
-    Angle3P(Name, Name, Name),
+    Angle3P(String, String, String),
     Angle2L(Linear, Linear),
     Number(f64),
-    Name(Name),
+    Name(String),
 }
 
 #[derive(Debug)]
 pub enum Object {
-    Line2P(Name, Name),
-    Circ3P(Name, Name, Name),
-    CircOr(Name, Numeric),
-    CircOA(Name, Name),
-    CircDiam(Name, Name),
-    Arc(Name, Name, Name),
-    ArcO(Name, Name, Name),
-    Angle3P(Name, Name, Name),
-    Triangle(Name, Name, Name),
-    Polygon(Vec<Name>),
-    Name(Name),
+    Line2P(String, String),
+    Circ3P(String, String, String),
+    CircOr(String, Numeric),
+    CircOA(String, String),
+    CircDiam(String, String),
+    Arc(String, String, String),
+    ArcO(String, String, String),
+    Angle3P(String, String, String),
+    Triangle(String, String, String),
+    Polygon(Vec<String>),
+    Name(String),
     Numeric(Numeric),
     Eval(String),
 }
@@ -48,51 +44,44 @@ pub enum DeclRight {
 
 #[derive(Debug)]
 pub enum DeclLeft {
-    Direct(Name),
-    Destruct(Name, Name),
+    Direct(String),
+    Destruct(String, String),
 }
 
 #[derive(Debug)]
 pub struct Decl(pub DeclLeft, pub DeclRight);
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum ConfigValue {
     Number(f64),
     String(String),
     Bool(bool),
 }
 
-#[derive(Debug)]
-pub struct Config {
-    pub key: String,
-    pub val: ConfigValue,
-}
+pub type Config = HashMap<String, ConfigValue>;
 
 #[derive(Debug)]
 pub struct StyledObject {
     pub obj: Object,
-    pub config: Vec<Config>,
+    pub config: Option<Config>,
 }
 
 #[derive(Debug)]
 pub struct DecorObject {
     pub obj: Object,
     pub decor: String,
-    pub config: Vec<Config>,
+    pub config: Option<Config>,
 }
 
-pub type ConfigLine = Vec<Config>;
 pub type Draw = Vec<StyledObject>;
 pub type Decor = Vec<DecorObject>;
-#[derive(Debug)]
-pub struct Save(pub String);
 
 #[derive(Debug)]
 pub enum FileLine {
-    Config(ConfigLine),
+    Config(Config),
     Draw(Draw),
     Decor(Decor),
-    Save(Save),
+    Save(String),
     Decl(Decl),
 }
 

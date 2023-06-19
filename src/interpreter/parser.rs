@@ -1,7 +1,7 @@
 use std::f64::consts::PI;
 
-use pest_consume::{match_nodes, Error};
 use pest_consume::Parser;
+use pest_consume::{match_nodes, Error};
 
 use super::ast::*;
 
@@ -22,12 +22,12 @@ pub fn parse(src: &str) -> Result<Main> {
 #[pest_consume::parser]
 impl ProposeParser {
     #[inline]
-    fn point_id(input: Node) -> Result<Name> {
-        Ok(Name::Point(input.as_str().to_string()))
+    fn point_id(input: Node) -> Result<String> {
+        Ok(input.as_str().to_string())
     }
     #[inline]
-    fn common_id(input: Node) -> Result<Name> {
-        Ok(Name::Common(input.as_str().to_string()))
+    fn common_id(input: Node) -> Result<String> {
+        Ok(input.as_str().to_string())
     }
     #[inline]
     fn line_2p(input: Node) -> Result<Object> {
@@ -131,18 +131,19 @@ impl ProposeParser {
     }
     #[inline]
     fn number(input: Node) -> Result<f64> {
-        input.as_str().to_string().parse::<f64>().map_err(|e| input.error(e))
+        input
+            .as_str()
+            .to_string()
+            .parse::<f64>()
+            .map_err(|e| input.error(e))
     }
     #[inline]
     fn degree(input: Node) -> Result<f64> {
-        let mut x = input
-            .as_str()
-            .to_string();
+        let mut x = input.as_str().to_string();
         x.pop();
         x.pop();
         x.pop();
-        let x = x.parse::<f64>()
-            .map_err(|e| input.error(e))?;
+        let x = x.parse::<f64>().map_err(|e| input.error(e))?;
         Ok(x * PI / 180.0)
     }
     #[inline]
@@ -211,7 +212,7 @@ impl ProposeParser {
         Ok(Object::Eval(input.as_str().to_string()))
     }
     #[inline]
-    fn any_id(input: Node) -> Result<Name> {
+    fn any_id(input: Node) -> Result<String> {
         match_nodes!(
             input.into_children();
             [point_id(a)] => Ok(a),
@@ -335,26 +336,33 @@ impl ProposeParser {
         Ok(input.as_str().to_string())
     }
     #[inline]
-    fn config(input: Node) -> Result<Config> {
+    fn config(input: Node) -> Result<(String, ConfigValue)> {
         match_nodes!(
             input.into_children();
-            [config_name(key), config_value(val)] => Ok(Config { key, val })
+            [config_name(key), config_value(val)] => Ok((key, val))
         )
     }
     #[inline]
-    fn configs(input: Node) -> Result<Vec<Config>> {
-        input.into_children().map(|c| Self::config(c)).collect()
+    fn configs(input: Node) -> Result<Config> {
+        let items = input.into_children().map(|c| Self::config(c));
+        let mut map = Config::new();
+        for item in items {
+            if let Ok((key, val )) = item {
+                map.insert(key, val);
+            }
+        }
+        Ok(map)
     }
     #[inline]
-    fn config_line(input: Node) -> Result<ConfigLine> {
+    fn config_line(input: Node) -> Result<Config> {
         Self::configs(input.into_children().single().unwrap())
     }
     #[inline]
     fn draw_step(input: Node) -> Result<StyledObject> {
         match_nodes!(
             input.into_children();
-            [draw_obj(obj), configs(config)] => Ok(StyledObject { obj, config }),
-            [draw_obj(obj)] => Ok(StyledObject { obj, config: vec![] })
+            [draw_obj(obj), configs(config)] => Ok(StyledObject { obj, config: Some(config) }),
+            [draw_obj(obj)] => Ok(StyledObject { obj, config: None })
         )
     }
     #[inline]
@@ -369,8 +377,8 @@ impl ProposeParser {
     fn decor_step(input: Node) -> Result<DecorObject> {
         match_nodes!(
             input.into_children();
-            [decor_obj(obj), decoration(decor), configs(config)] => Ok(DecorObject { obj, decor, config }),
-            [decor_obj(obj), decoration(decor)] => Ok(DecorObject { obj, decor, config: vec![] })
+            [decor_obj(obj), decoration(decor), configs(config)] => Ok(DecorObject { obj, decor, config: Some(config) }),
+            [decor_obj(obj), decoration(decor)] => Ok(DecorObject { obj, decor, config: None })
         )
     }
     #[inline]
@@ -378,10 +386,10 @@ impl ProposeParser {
         input.into_children().map(|d| Self::decor_step(d)).collect()
     }
     #[inline]
-    fn save_file(input: Node) -> Result<Save> {
+    fn save_file(input: Node) -> Result<String> {
         match_nodes!(
             input.into_children();
-            [raw_string(a)] => Ok(Save(a))
+            [raw_string(a)] => Ok(a)
         )
     }
     #[inline]
