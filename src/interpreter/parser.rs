@@ -13,7 +13,7 @@ type Node<'i> = pest_consume::Node<'i, Rule, ()>;
 pub struct ProposeParser;
 
 #[inline]
-pub fn parse(src: &str) -> Result<Main> {
+pub(super) fn parse(src: &str) -> Result<Main> {
     let inputs = ProposeParser::parse(Rule::main, src)?;
     let input = inputs.single()?;
     ProposeParser::main(input)

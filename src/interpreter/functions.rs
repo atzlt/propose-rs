@@ -1,16 +1,9 @@
 use std::collections::HashMap;
 
 use lazy_static::lazy_static;
-use metric_rs::calc::{basic::Intersect, exception::CalcException};
+use metric_rs::calc::basic::Intersect;
 
-use super::interpret::GObject;
-
-#[derive(Debug)]
-pub enum FuncErr {
-    CalcError(CalcException),
-    ArgError,
-    NoFunc(String),
-}
+use super::{interpret::GObject, utils::FuncErr};
 
 macro_rules! ret_branch {
     ([$(<$var:ident>$param:ident),+] => <$ret:ident,None>$body:expr) => {
@@ -46,7 +39,7 @@ macro_rules! entry {
 }
 
 lazy_static! {
-    pub static ref FUNCTIONS: HashMap<String, fn(Vec<GObject>) -> Result<(GObject, GObject), FuncErr>> =
+    pub(super) static ref FUNCTIONS: HashMap<String, fn(Vec<GObject>) -> Result<(GObject, GObject), FuncErr>> =
         HashMap::from([entry!(
             "i";
             [<Line>l, <Line>k, <Point>p] => <Point, None>l.inter_common(k, p),

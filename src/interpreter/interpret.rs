@@ -1,7 +1,7 @@
+use crate::interpreter::utils::FuncErr;
 use std::collections::HashMap;
 
 use if_chain::if_chain;
-use lazy_static::lazy_static;
 use metric_rs::{
     calc::{
         basic::{angle, angle_between, Distance},
@@ -10,19 +10,16 @@ use metric_rs::{
     objects::{Circle, Line, Point},
 };
 
+use crate::structs::{Arc, Segment};
+
 use super::{
-    ast::*,
-    functions::{FuncErr, FUNCTIONS},
-    parser::parse,
+    ast::*, default::DEFAULT_CONFIG, draw::StyledDObject, functions::FUNCTIONS, parser::parse,
+    utils::InterpretError,
 };
 
-lazy_static! {
-    static ref DEFAULT_CONFIG: HashMap<String, ConfigValue> =
-        HashMap::from([(String::from("thick"), ConfigValue::Number(5.0)),]);
-}
-
+/// Objects related to calculation.
 #[derive(Debug, Clone, Copy)]
-pub enum GObject {
+pub(super) enum GObject {
     Point(Point),
     Line(Line),
     Circle(Circle),
@@ -31,19 +28,65 @@ pub enum GObject {
     None,
 }
 
+/// Objects related to drawing.
 #[derive(Debug)]
-pub enum InterpretError {
-    ParseError(String),
-    FuncError(FuncErr),
-    MissingKey(String),
-    WrongType,
+pub(super) enum DObject {
+    Segment(Segment),
+    Arc(Arc),
+    Point(Point),
+    Circle(Circle),
+    Polygon(Vec<Point>),
+    Angle3P(Point, Point, Point),
+}
+
+impl Into<Result<DObject>> for GObject {
+    #[inline]
+    fn into(self) -> Result<DObject> {
+        match self {
+            GObject::Circle(c) => Ok(DObject::Circle(c)),
+            GObject::Point(p) => Ok(DObject::Point(p)),
+            _ => Err(InterpretError::WrongType),
+        }
+    }
 }
 
 type Result<T> = std::result::Result<T, InterpretError>;
 
+#[derive(Debug, PartialEq, Eq, Hash)]
+pub enum LayerType {
+    Dots,
+    Lines,
+    Decor,
+    Text,
+    Area,
+}
+
+const LAYERS_ORDER: [LayerType; 5] = [
+    LayerType::Area,
+    LayerType::Decor,
+    LayerType::Lines,
+    LayerType::Dots,
+    LayerType::Text,
+];
+
+#[derive(Debug)]
+pub struct Layer(HashMap<LayerType, String>);
+
+impl Layer {
+    fn emit(&mut self, layer: LayerType, string: &str) {
+        let entry = self.0.get_mut(&layer);
+        if let Some(entry) = entry {
+            entry.push_str(string);
+        } else {
+            self.0.insert(layer, string.to_string());
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct InterpreterState {
     objects: HashMap<String, GObject>,
+    layer: Layer,
     config: Config,
 }
 
@@ -66,7 +109,8 @@ impl InterpreterState {
     pub fn new() -> Self {
         InterpreterState {
             objects: HashMap::new(),
-            config: Config::new(),
+            layer: Layer(HashMap::new()),
+            config: DEFAULT_CONFIG.clone(),
         }
     }
     #[inline]
@@ -89,15 +133,18 @@ impl InterpreterState {
         match input {
             FileLine::Config(config) => self.config(config),
             FileLine::Decl(decl) => self.decl(decl),
+            FileLine::Draw(draw) => self.draw(draw),
             _ => todo!(),
         }
     }
-
-    fn config(&mut self, mut config: Config) -> Result<()> {
-        config.extend((*DEFAULT_CONFIG).clone());
-        self.config = config;
+    #[inline]
+    fn config(&mut self, config: Config) -> Result<()> {
+        for (key, value) in config {
+            self.config.insert(key, value);
+        }
         Ok(())
     }
+    #[inline]
     fn decl(&mut self, decl: Decl) -> Result<()> {
         let Decl(left, right) = decl;
         let value = self.decl_right(right)?;
@@ -112,6 +159,7 @@ impl InterpreterState {
         }
         Ok(())
     }
+    #[inline]
     fn decl_right(&self, decl: DeclRight) -> Result<(GObject, GObject)> {
         match decl {
             DeclRight::OrthoCoord(x, y) => {
@@ -147,9 +195,37 @@ impl InterpreterState {
             }
         }
     }
+    #[inline]
+    fn draw(&mut self, draw: Draw) -> Result<()> {
+        for step in draw {
+            let obj = StyledDObject {
+                obj: self.get_draw_obj(step.obj)?,
+                local_conf: step.config,
+                global_conf: &self.config,
+            };
+            let layer = match obj.obj {
+                DObject::Point(_) => LayerType::Dots,
+                DObject::Segment(_) => LayerType::Lines,
+                DObject::Arc(_) => LayerType::Lines,
+                DObject::Circle(_) => LayerType::Lines,
+                DObject::Polygon(_) => LayerType::Area,
+                _ => unreachable!(),
+            };
+            self.layer.emit(layer, obj.to_string().as_str());
+            if let Some(_) = obj.get("label") {
+                self.layer.emit(
+                    LayerType::Text,
+                    obj.label()
+                        .map_err(|e| InterpretError::LabelError(e))?
+                        .as_str(),
+                );
+            }
+        }
+        Ok(())
+    }
 
     // Auxiliary functions.
-
+    #[inline]
     fn get_linear(&self, lin: Linear) -> Result<Line> {
         match lin {
             Linear::Name(s) => {
@@ -171,6 +247,7 @@ impl InterpreterState {
             }
         }
     }
+    #[inline]
     fn get_numeric(&self, num: Numeric) -> Result<f64> {
         match num {
             Numeric::Number(x) => Ok(x),
@@ -218,7 +295,8 @@ impl InterpreterState {
             }
         }
     }
-    fn get_circle(&self, obj: Object) -> Result<GObject> {
+    #[inline]
+    fn get_common(&self, obj: Object) -> Result<GObject> {
         match obj {
             Object::Name(s) => Ok(*get!(self.objects, s)),
             Object::Circ3P(a, b, c) => {
@@ -265,6 +343,7 @@ impl InterpreterState {
             _ => unreachable!(),
         }
     }
+    #[inline]
     fn get_arg_obj(&self, obj: Object) -> Result<GObject> {
         match obj {
             Object::Line2P(a, b) => {
@@ -286,7 +365,51 @@ impl InterpreterState {
             }
             Object::Numeric(n) => Ok(GObject::Number(self.get_numeric(n)?)),
             Object::Eval(_) => unimplemented!(),
-            _ => self.get_circle(obj),
+            _ => self.get_common(obj),
+        }
+    }
+    #[inline]
+    fn get_draw_obj(&self, obj: Object) -> Result<DObject> {
+        match obj {
+            Object::Line2P(a, b) => {
+                if_chain! {
+                    if let GObject::Point(a) = get!(self.objects, a);
+                    if let GObject::Point(b) = get!(self.objects, b);
+                    then { Ok(DObject::Segment(Segment { from: *a, to: *b })) }
+                    else { Err(InterpretError::WrongType) }
+                }
+            }
+            Object::Arc(a, b, c) => {
+                if_chain! {
+                    if let GObject::Point(a) = get!(self.objects, a);
+                    if let GObject::Point(b) = get!(self.objects, b);
+                    if let GObject::Point(c) = get!(self.objects, c);
+                    then { Ok(DObject::Arc(map_calc_err!(Arc::from_3p(*a, *b, *c)))) }
+                    else { Err(InterpretError::WrongType) }
+                }
+            }
+            Object::ArcO(_, _, _) => unimplemented!(),
+            Object::Polygon(p) => {
+                let mut points = Vec::new();
+                for s in p {
+                    if let GObject::Point(a) = get!(self.objects, s) {
+                        points.push(*a);
+                    } else {
+                        return Err(InterpretError::WrongType);
+                    }
+                }
+                Ok(DObject::Polygon(points))
+            }
+            Object::Angle3P(a, b, c) => {
+                if_chain! {
+                    if let GObject::Point(a) = get!(self.objects, a);
+                    if let GObject::Point(b) = get!(self.objects, b);
+                    if let GObject::Point(c) = get!(self.objects, c);
+                    then { Ok(DObject::Angle3P(*a, *b, *c)) }
+                    else { Err(InterpretError::WrongType) }
+                }
+            }
+            _ => self.get_common(obj)?.into(),
         }
     }
 }

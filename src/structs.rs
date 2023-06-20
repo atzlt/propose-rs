@@ -5,15 +5,17 @@
 use std::f64::consts::PI;
 
 use metric_rs::{
-    calc::{basic::angle, exception::Result as CalcResult, point_on::PointOn},
+    calc::{basic::angle, exception::Result as CalcResult, point_on::PointOn, transform::Rotate},
     objects::{Circle, Point},
 };
 
+#[derive(Debug, Clone, Copy)]
 pub struct Segment {
     pub from: Point,
     pub to: Point,
 }
 
+#[derive(Debug, Clone, Copy)]
 pub struct Arc {
     pub from: Point,
     pub to: Point,
@@ -56,5 +58,13 @@ impl PointOn for Segment {
     #[inline]
     fn point_on(self, pos: f64) -> Point {
         self.to * pos + self.from * (1.0 - pos)
+    }
+}
+
+impl PointOn for Arc {
+    #[inline]
+    fn point_on(self, pos: f64) -> Point {
+        let angle = pos * self.angle;
+        self.from.rotate(self.O, angle)
     }
 }

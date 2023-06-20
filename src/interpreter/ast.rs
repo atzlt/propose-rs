@@ -1,13 +1,13 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, fmt::Display};
 
 #[derive(Debug)]
-pub enum Linear {
+pub(super) enum Linear {
     Line2P(String, String),
     Name(String),
 }
 
 #[derive(Debug)]
-pub enum Numeric {
+pub(super) enum Numeric {
     Distance2P(String, String),
     DistancePL(String, Linear),
     Distance2L(Linear, Linear),
@@ -18,7 +18,7 @@ pub enum Numeric {
 }
 
 #[derive(Debug)]
-pub enum Object {
+pub(super) enum Object {
     Line2P(String, String),
     Circ3P(String, String, String),
     CircOr(String, Numeric),
@@ -35,7 +35,7 @@ pub enum Object {
 }
 
 #[derive(Debug)]
-pub enum DeclRight {
+pub(super) enum DeclRight {
     OrthoCoord(Numeric, Numeric),
     PolarCoord(Numeric, Numeric),
     Expr(String, Vec<Object>),
@@ -43,41 +43,52 @@ pub enum DeclRight {
 }
 
 #[derive(Debug)]
-pub enum DeclLeft {
+pub(super) enum DeclLeft {
     Direct(String),
     Destruct(String, String),
 }
 
 #[derive(Debug)]
-pub struct Decl(pub DeclLeft, pub DeclRight);
+pub(super) struct Decl(pub(super) DeclLeft, pub(super) DeclRight);
 
 #[derive(Debug, Clone)]
-pub enum ConfigValue {
+pub(super) enum ConfigValue {
     Number(f64),
     String(String),
     Bool(bool),
 }
 
-pub type Config = HashMap<String, ConfigValue>;
+impl Display for ConfigValue {
+    #[inline]
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::String(s) => write!(f, "{}", s),
+            Self::Bool(b) => write!(f, "{}", b),
+            Self::Number(n) => write!(f, "{}", n),
+        }
+    }
+}
+
+pub(super) type Config = HashMap<String, ConfigValue>;
 
 #[derive(Debug)]
-pub struct StyledObject {
-    pub obj: Object,
-    pub config: Option<Config>,
+pub(super) struct StyledObject {
+    pub(super) obj: Object,
+    pub(super) config: Option<Config>,
 }
 
 #[derive(Debug)]
-pub struct DecorObject {
-    pub obj: Object,
-    pub decor: String,
-    pub config: Option<Config>,
+pub(super) struct DecorObject {
+    pub(super) obj: Object,
+    pub(super) decor: String,
+    pub(super) config: Option<Config>,
 }
 
-pub type Draw = Vec<StyledObject>;
-pub type Decor = Vec<DecorObject>;
+pub(super) type Draw = Vec<StyledObject>;
+pub(super) type Decor = Vec<DecorObject>;
 
 #[derive(Debug)]
-pub enum FileLine {
+pub(super) enum FileLine {
     Config(Config),
     Draw(Draw),
     Decor(Decor),
@@ -85,4 +96,4 @@ pub enum FileLine {
     Decl(Decl),
 }
 
-pub type Main = Vec<FileLine>;
+pub(super) type Main = Vec<FileLine>;
