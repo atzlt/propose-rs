@@ -1,4 +1,6 @@
-use metric_rs::calc::exception::CalcException;
+use metric_rs::{calc::exception::CalcException, objects::{Point, Circle, Line}};
+
+use crate::structs::{Segment, Arc};
 
 use super::ast::ConfigValue;
 
@@ -16,6 +18,38 @@ impl ConfigValue {
         }
     }
 }
+/// Objects related to calculation.
+#[derive(Debug, Clone, Copy)]
+pub(super) enum GObject {
+    Point(Point),
+    Line(Line),
+    Circle(Circle),
+    Trig((Point, Point, Point)),
+    Number(f64),
+    None,
+}
+
+/// Objects related to drawing.
+#[derive(Debug)]
+pub(super) enum DObject {
+    Segment(Segment),
+    Arc(Arc),
+    Point(Point),
+    Circle(Circle),
+    Polygon(Vec<Point>),
+    Angle3P(Point, Point, Point),
+}
+
+impl Into<Result<DObject, InterpretError>> for GObject {
+    #[inline]
+    fn into(self) -> Result<DObject, InterpretError> {
+        match self {
+            GObject::Circle(c) => Ok(DObject::Circle(c)),
+            GObject::Point(p) => Ok(DObject::Point(p)),
+            _ => Err(InterpretError::WrongType),
+        }
+    }
+}
 
 #[derive(Debug)]
 pub enum LabelError {
@@ -26,10 +60,12 @@ pub enum LabelError {
 #[derive(Debug)]
 pub enum InterpretError {
     ParseError(String),
-    LabelError(LabelError),
     FuncError(FuncErr),
     MissingKey(String),
+    IOError(std::io::Error),
     WrongType,
+    WrongConfigType,
+    LabelObjNotSupported,
 }
 
 #[derive(Debug)]
@@ -57,5 +93,24 @@ impl From<bool> for ConfigValue {
     #[inline]
     fn from(value: bool) -> Self {
         Self::Bool(value)
+    }
+}
+
+impl From<ConversionError> for InterpretError {
+    #[inline]
+    fn from(value: ConversionError) -> Self {
+        match value {
+            ConversionError::ToF64 => Self::WrongConfigType,
+        }
+    }
+}
+
+impl From<LabelError> for InterpretError {
+    #[inline]
+    fn from(value: LabelError) -> Self {
+        match value {
+            LabelError::ObjNotSupported => Self::LabelObjNotSupported,
+            LabelError::WrongConfigType => Self::WrongConfigType,
+        }
     }
 }

@@ -9,13 +9,13 @@ use metric_rs::{
     objects::{Circle, Point},
 };
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub struct Segment {
     pub from: Point,
     pub to: Point,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub struct Arc {
     pub from: Point,
     pub to: Point,
@@ -56,14 +56,14 @@ impl Segment {
 
 impl PointOn for Segment {
     #[inline]
-    fn point_on(self, pos: f64) -> Point {
+    fn point_on(&self, pos: f64) -> Point {
         self.to * pos + self.from * (1.0 - pos)
     }
 }
 
 impl PointOn for Arc {
     #[inline]
-    fn point_on(self, pos: f64) -> Point {
+    fn point_on(&self, pos: f64) -> Point {
         let angle = pos * self.angle;
         self.from.rotate(self.O, angle)
     }

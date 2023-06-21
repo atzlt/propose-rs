@@ -12,6 +12,8 @@ macro_rules! entry {
 
 lazy_static! {
     pub(super) static ref DEFAULT_CONFIG: HashMap<String, ConfigValue> = HashMap::from([
+        entry!("width", 10.0),
+        entry!("height", 10.0),
         entry!("color", "#000000"),
         entry!("fill", "#00000000"),
         entry!("linewidth", 1.5),

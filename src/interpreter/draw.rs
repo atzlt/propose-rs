@@ -8,11 +8,11 @@ use crate::structs::{Arc, Segment};
 
 use super::{
     ast::{Config, ConfigValue},
-    interpret::DObject,
+    utils::DObject,
     utils::LabelError,
 };
 
-const CM: f64 = 37.795;
+pub(super) const CM: f64 = 37.795;
 
 #[derive(Debug)]
 pub(super) struct StyledDObject<'conf> {
@@ -71,7 +71,7 @@ impl Display for StyledDObject<'_> {
                     f,
                     "<circle cx=\"{}cm\" cy=\"{}cm\" r=\"{}cm\" stroke=\"{}\" fill=\"{}\" stroke-width=\"{}\"{}/>",
                     circ.O.x,
-                    circ.O.y,
+                    -circ.O.y,
                     circ.r,
                     self.get_unchecked("color"),
                     self.get_unchecked("fill"),
@@ -87,9 +87,9 @@ impl Display for StyledDObject<'_> {
             DObject::Point(p) => {
                 write!(
                     f,
-                    "<circle cx=\"{}cm\" cy=\"{}cm\" r=\"{}cm\" stroke=\"{}\" fill=\"{}\" stroke-width=\"{}\"/>",
+                    "<circle cx=\"{}cm\" cy=\"{}cm\" r=\"{}\" stroke=\"{}\" fill=\"{}\" stroke-width=\"{}\"/>",
                     p.x,
-                    p.y,
+                    -p.y,
                     self.get_unchecked("dotsize"),
                     self.get_unchecked("dotstroke"),
                     self.get_unchecked("dotfill"),
@@ -110,13 +110,13 @@ impl Display for StyledDObject<'_> {
                     f,
                     "<path d=\"M {},{} A {} {} 0 {} {} {},{}\" fill=\"none\" stroke=\"{}\" stroke-width=\"{}\"{}/>",
                     from.x * CM,
-                    from.y * CM,
+                    -from.y * CM,
                     r * CM,
                     r * CM,
                     if *large_arc { 1 } else { 0 },
                     if *sweep { 0 } else { 1 },
                     to.x * CM,
-                    to.y * CM,
+                    -to.y * CM,
                     self.get_unchecked("color"),
                     self.get_unchecked("linewidth"),
                     if_chain! {
@@ -172,11 +172,11 @@ impl StyledDObject<'_> {
             _ => Err(LabelError::ObjNotSupported),
         }?;
         Ok(format!(
-            "<text font-size=\"{}\" font-family=\"{}\" font-style=\"italic\" text-anchor=\"middle\" dominant-baseline=\"middle\" x=\"{}cm\" y=\"{}cm\"{}</text>",
+            "<text font-size=\"{}\" font-family=\"{}\" font-style=\"italic\" text-anchor=\"middle\" dominant-baseline=\"middle\" x=\"{}cm\" y=\"{}cm\">{}</text>",
             size,
             font,
             pos.x + dist * angle.cos(),
-            pos.y + dist * angle.sin(),
+            -(pos.y + dist * angle.sin()),
             label,
         ))
     }

@@ -1,5 +1,5 @@
-use crate::interpreter::utils::FuncErr;
-use std::collections::HashMap;
+use crate::interpreter::{draw::CM, utils::FuncErr};
+use std::{collections::HashMap, fs};
 
 use if_chain::if_chain;
 use metric_rs::{
@@ -13,42 +13,13 @@ use metric_rs::{
 use crate::structs::{Arc, Segment};
 
 use super::{
-    ast::*, default::DEFAULT_CONFIG, draw::StyledDObject, functions::FUNCTIONS, parser::parse,
-    utils::InterpretError,
+    ast::*,
+    default::DEFAULT_CONFIG,
+    draw::StyledDObject,
+    functions::FUNCTIONS,
+    parser::parse,
+    utils::{DObject, GObject, InterpretError},
 };
-
-/// Objects related to calculation.
-#[derive(Debug, Clone, Copy)]
-pub(super) enum GObject {
-    Point(Point),
-    Line(Line),
-    Circle(Circle),
-    Trig((Point, Point, Point)),
-    Number(f64),
-    None,
-}
-
-/// Objects related to drawing.
-#[derive(Debug)]
-pub(super) enum DObject {
-    Segment(Segment),
-    Arc(Arc),
-    Point(Point),
-    Circle(Circle),
-    Polygon(Vec<Point>),
-    Angle3P(Point, Point, Point),
-}
-
-impl Into<Result<DObject>> for GObject {
-    #[inline]
-    fn into(self) -> Result<DObject> {
-        match self {
-            GObject::Circle(c) => Ok(DObject::Circle(c)),
-            GObject::Point(p) => Ok(DObject::Point(p)),
-            _ => Err(InterpretError::WrongType),
-        }
-    }
-}
 
 type Result<T> = std::result::Result<T, InterpretError>;
 
@@ -61,14 +32,6 @@ pub enum LayerType {
     Area,
 }
 
-const LAYERS_ORDER: [LayerType; 5] = [
-    LayerType::Area,
-    LayerType::Decor,
-    LayerType::Lines,
-    LayerType::Dots,
-    LayerType::Text,
-];
-
 #[derive(Debug)]
 pub struct Layer(HashMap<LayerType, String>);
 
@@ -80,6 +43,9 @@ impl Layer {
         } else {
             self.0.insert(layer, string.to_string());
         }
+    }
+    fn get(&self, layer: LayerType) -> String {
+        self.0.get(&layer).unwrap_or(&String::new()).clone()
     }
 }
 
@@ -134,6 +100,7 @@ impl InterpreterState {
             FileLine::Config(config) => self.config(config),
             FileLine::Decl(decl) => self.decl(decl),
             FileLine::Draw(draw) => self.draw(draw),
+            FileLine::Save(path) => self.save(path),
             _ => todo!(),
         }
     }
@@ -154,7 +121,9 @@ impl InterpreterState {
             }
             DeclLeft::Destruct(x, y) => {
                 self.objects.insert(x, value.0);
-                self.objects.insert(y, value.1);
+                if y != "_" {
+                    self.objects.insert(y, value.1);
+                }
             }
         }
         Ok(())
@@ -213,15 +182,39 @@ impl InterpreterState {
             };
             self.layer.emit(layer, obj.to_string().as_str());
             if let Some(_) = obj.get("label") {
-                self.layer.emit(
-                    LayerType::Text,
-                    obj.label()
-                        .map_err(|e| InterpretError::LabelError(e))?
-                        .as_str(),
-                );
+                self.layer.emit(LayerType::Text, obj.label()?.as_str());
             }
         }
         Ok(())
+    }
+    fn save(&self, path: String) -> Result<()> {
+        fs::write(path, self.emit()?).map_err(|e| InterpretError::IOError(e))
+    }
+    fn emit(&self) -> Result<String> {
+        let width = self.config.get("width").unwrap().try_into_f64()? * CM;
+        let height = self.config.get("height").unwrap().try_into_f64()? * CM;
+        Ok(format!(
+            "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{}\" height=\"{}\" viewBox=\"{} {} {} {}\">\n{}\n{}\n{}\n{}\n{}\n</svg>\n",
+            width,
+            height,
+            if let Some(ConfigValue::Number(min_x)) = self.config.get("minX") {
+                *min_x
+            } else {
+                -width / 2.0
+            },
+            if let Some(ConfigValue::Number(min_y)) = self.config.get("minY") {
+                *min_y
+            } else {
+                -height / 2.0
+            },
+            width,
+            height,
+            self.layer.get(LayerType::Area),
+            self.layer.get(LayerType::Lines),
+            self.layer.get(LayerType::Decor),
+            self.layer.get(LayerType::Dots),
+            self.layer.get(LayerType::Text),
+        ))
     }
 
     // Auxiliary functions.
