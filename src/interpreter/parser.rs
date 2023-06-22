@@ -13,7 +13,7 @@ type Node<'i> = pest_consume::Node<'i, Rule, ()>;
 pub struct ProposeParser;
 
 #[inline]
-pub(super) fn parse(src: &str) -> Result<Main> {
+pub fn parse(src: &str) -> Result<Main> {
     let inputs = ProposeParser::parse(Rule::main, src)?;
     let input = inputs.single()?;
     ProposeParser::main(input)
@@ -274,7 +274,7 @@ impl ProposeParser {
     }
     #[inline]
     fn args(input: Node) -> Result<Vec<Object>> {
-        input.into_children().map(|a| Self::arg(a)).collect()
+        input.into_children().map(Self::arg).collect()
     }
     #[inline]
     fn expr(input: Node) -> Result<DeclRight> {
@@ -344,12 +344,10 @@ impl ProposeParser {
     }
     #[inline]
     fn configs(input: Node) -> Result<Config> {
-        let items = input.into_children().map(|c| Self::config(c));
+        let items = input.into_children().map(Self::config);
         let mut map = Config::new();
-        for item in items {
-            if let Ok((key, val )) = item {
-                map.insert(key, val);
-            }
+        for (key, val) in items.flatten() {
+            map.insert(key, val);
         }
         Ok(map)
     }
@@ -367,7 +365,7 @@ impl ProposeParser {
     }
     #[inline]
     fn draw(input: Node) -> Result<Draw> {
-        input.into_children().map(|d| Self::draw_step(d)).collect()
+        input.into_children().map(Self::draw_step).collect()
     }
     #[inline]
     fn decoration(input: Node) -> Result<String> {
@@ -383,7 +381,7 @@ impl ProposeParser {
     }
     #[inline]
     fn decor(input: Node) -> Result<Decor> {
-        input.into_children().map(|d| Self::decor_step(d)).collect()
+        input.into_children().map(Self::decor_step).collect()
     }
     #[inline]
     fn save_file(input: Node) -> Result<String> {
@@ -396,15 +394,15 @@ impl ProposeParser {
     fn file_line(input: Node) -> Result<FileLine> {
         match_nodes!(
             input.into_children();
-            [config_line(a)] => Ok(FileLine::Config(a)),
+            [config_line(a)] => Ok(FileLine::Config(Box::new(a))),
             [draw(a)] => Ok(FileLine::Draw(a)),
             [decor(a)] => Ok(FileLine::Decor(a)),
             [save_file(a)] => Ok(FileLine::Save(a)),
-            [decl(a)] => Ok(FileLine::Decl(a)),
+            [decl(a)] => Ok(FileLine::Decl(Box::new(a))),
         )
     }
     #[inline]
     fn main(input: Node) -> Result<Main> {
-        input.into_children().map(|l| Self::file_line(l)).collect()
+        input.into_children().map(Self::file_line).collect()
     }
 }

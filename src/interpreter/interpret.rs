@@ -1,6 +1,13 @@
-use crate::interpreter::{draw::CM, utils::FuncErr};
-use std::{collections::HashMap, fs};
-
+use super::{
+    ast::*,
+    default::DEFAULT_CONFIG,
+    draw::dobjects::StyledDObject,
+    functions::FUNCTIONS,
+    parser::parse,
+    utils::{DObject, GObject, InterpretError},
+};
+use crate::interpreter::{draw::CM, utils::FuncError};
+use crate::structs::{Arc, Segment};
 use if_chain::if_chain;
 use metric_rs::{
     calc::{
@@ -9,20 +16,11 @@ use metric_rs::{
     },
     objects::{Circle, Line, Point},
 };
-
-use crate::structs::{Arc, Segment};
-
-use super::{
-    ast::*,
-    default::DEFAULT_CONFIG,
-    draw::StyledDObject,
-    functions::FUNCTIONS,
-    parser::parse,
-    utils::{DObject, GObject, InterpretError},
-};
+use std::{collections::HashMap, fs};
 
 type Result<T> = std::result::Result<T, InterpretError>;
 
+/// Types of layers.
 #[derive(Debug, PartialEq, Eq, Hash)]
 pub enum LayerType {
     Dots,
@@ -32,6 +30,7 @@ pub enum LayerType {
     Area,
 }
 
+/// A wrapper of HashMap, representing the layers.
 #[derive(Debug)]
 pub struct Layer(HashMap<LayerType, String>);
 
@@ -49,6 +48,7 @@ impl Layer {
     }
 }
 
+/// Represents the state of an interpreter.
 #[derive(Debug)]
 pub struct InterpreterState {
     objects: HashMap<String, GObject>,
@@ -56,6 +56,7 @@ pub struct InterpreterState {
     config: Config,
 }
 
+/// Convenience macro to get a value or fail with `MissingKey`.
 macro_rules! get {
     ($objs:expr , $key:ident) => {
         $objs
@@ -64,10 +65,11 @@ macro_rules! get {
     };
 }
 
-macro_rules! map_calc_err {
-    ($e:expr) => {
-        $e.map_err(|e| InterpretError::FuncError(FuncErr::CalcError(e)))?
-    };
+impl Default for InterpreterState {
+    #[inline]
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl InterpreterState {
@@ -84,7 +86,7 @@ impl InterpreterState {
         let input = parse(source);
         match input {
             Err(e) => {
-                return Err(InterpretError::ParseError(e.to_string()));
+                Err(InterpretError::ParseError(e.to_string()))
             }
             Ok(input) => {
                 for line in input {
@@ -97,11 +99,11 @@ impl InterpreterState {
     #[inline]
     fn _interpret(&mut self, input: FileLine) -> Result<()> {
         match input {
-            FileLine::Config(config) => self.config(config),
-            FileLine::Decl(decl) => self.decl(decl),
+            FileLine::Config(config) => self.config(*config),
+            FileLine::Decl(decl) => self.decl(*decl),
             FileLine::Draw(draw) => self.draw(draw),
+            FileLine::Decor(decor) => self.decor(decor),
             FileLine::Save(path) => self.save(path),
-            _ => todo!(),
         }
     }
     #[inline]
@@ -128,6 +130,8 @@ impl InterpreterState {
         }
         Ok(())
     }
+    /// Get the value on the right for a `decl` statement.
+    /// This method should always return a result of a tuple, so destrct assignment could work.
     #[inline]
     fn decl_right(&self, decl: DeclRight) -> Result<(GObject, GObject)> {
         match decl {
@@ -150,16 +154,17 @@ impl InterpreterState {
             DeclRight::Object(obj) => Ok((self.get_arg_obj(obj)?, GObject::None)),
             DeclRight::Expr(method, args) => {
                 let mut gobjs = Vec::new();
+                // Get all arguments.
                 for arg in args {
                     let obj = self.get_arg_obj(arg)?;
                     gobjs.push(obj);
                 }
                 let func = FUNCTIONS.get(&method);
                 if let Some(func) = func {
-                    let result = func(gobjs).map_err(|e| InterpretError::FuncError(e))?;
+                    let result = func(gobjs)?;
                     Ok(result)
                 } else {
-                    return Err(InterpretError::FuncError(FuncErr::NoFunc(method)));
+                    Err(InterpretError::FuncError(FuncError::NoFunc(method)))
                 }
             }
         }
@@ -172,6 +177,7 @@ impl InterpreterState {
                 local_conf: step.config,
                 global_conf: &self.config,
             };
+            // Emit code at the correct layer.
             let layer = match obj.obj {
                 DObject::Point(_) => LayerType::Dots,
                 DObject::Segment(_) => LayerType::Lines,
@@ -181,15 +187,36 @@ impl InterpreterState {
                 _ => unreachable!(),
             };
             self.layer.emit(layer, obj.to_string().as_str());
-            if let Some(_) = obj.get("label") {
+            // If a label is present, emit that label.
+            if obj.get("label").is_some() {
                 self.layer.emit(LayerType::Text, obj.label()?.as_str());
+            }
+            if obj.get("decor").is_some() {
+                self.layer.emit(LayerType::Decor, obj.decor()?.as_str());
             }
         }
         Ok(())
     }
-    fn save(&self, path: String) -> Result<()> {
-        fs::write(path, self.emit()?).map_err(|e| InterpretError::IOError(e))
+    #[inline]
+    fn decor(&mut self, decor: Decor) -> Result<()> {
+        for step in decor {
+            let obj = StyledDObject {
+                obj: self.get_draw_obj(step.obj)?,
+                local_conf: step.config,
+                global_conf: &self.config,
+            };
+            if obj.get("decor").is_some() {
+                self.layer.emit(LayerType::Decor, obj.decor()?.as_str());
+            }
+        }
+        Ok(())
     }
+    #[inline]
+    fn save(&self, path: String) -> Result<()> {
+        fs::write(path, self.emit()?).map_err(InterpretError::IOError)
+    }
+    /// Emit the complete SVG code.
+    #[inline]
     fn emit(&self) -> Result<String> {
         let width = self.config.get("width").unwrap().try_into_f64()? * CM;
         let height = self.config.get("height").unwrap().try_into_f64()? * CM;
@@ -218,6 +245,7 @@ impl InterpreterState {
     }
 
     // Auxiliary functions.
+    /// Get Linear objects.
     #[inline]
     fn get_linear(&self, lin: Linear) -> Result<Line> {
         match lin {
@@ -234,12 +262,13 @@ impl InterpreterState {
                 if_chain! {
                     if let GObject::Point(a) = get!(self.objects, a);
                     if let GObject::Point(b) = get!(self.objects, b);
-                    then { Ok(map_calc_err!(Line::from_2p(*a, *b))) }
+                    then { Ok(Line::from_2p(*a, *b)?) }
                     else { Err(InterpretError::WrongType) }
                 }
             }
         }
     }
+    /// Get Numeric values.
     #[inline]
     fn get_numeric(&self, num: Numeric) -> Result<f64> {
         match num {
@@ -277,7 +306,7 @@ impl InterpreterState {
                     if let GObject::Point(a) = get!(self.objects, a);
                     if let GObject::Point(o) = get!(self.objects, o);
                     if let GObject::Point(b) = get!(self.objects, b);
-                    then { Ok(map_calc_err!(angle(*a, *o, *b))) }
+                    then { Ok(angle(*a, *o, *b)?) }
                     else { Err(InterpretError::WrongType) }
                 }
             }
@@ -288,6 +317,7 @@ impl InterpreterState {
             }
         }
     }
+    /// Get common patterns in arguments and `draw_obj`s.
     #[inline]
     fn get_common(&self, obj: Object) -> Result<GObject> {
         match obj {
@@ -297,16 +327,14 @@ impl InterpreterState {
                     if let GObject::Point(a) = get!(self.objects, a);
                     if let GObject::Point(b) = get!(self.objects, b);
                     if let GObject::Point(c) = get!(self.objects, c);
-                    then { Ok(GObject::Circle(map_calc_err!(Circle::from_3p(*a, *b, *c)))) }
+                    then { Ok(GObject::Circle(Circle::from_3p(*a, *b, *c)?)) }
                     else { Err(InterpretError::WrongType) }
                 }
             }
             Object::CircOr(o, r) => {
                 if let GObject::Point(o) = get!(self.objects, o) {
                     let r = self.get_numeric(r)?;
-                    Ok(GObject::Circle(map_calc_err!(Circle::from_center_radius(
-                        *o, r
-                    ))))
+                    Ok(GObject::Circle(Circle::from_center_radius(*o, r)?))
                 } else {
                     Err(InterpretError::WrongType)
                 }
@@ -315,9 +343,7 @@ impl InterpreterState {
                 if_chain! {
                     if let GObject::Point(a) = get!(self.objects, a);
                     if let GObject::Point(b) = get!(self.objects, b);
-                    then { Ok(GObject::Circle(map_calc_err!(Circle::from_center_point(
-                        *a, *b
-                    )))) }
+                    then { Ok(GObject::Circle(Circle::from_center_point(*a, *b)?)) }
                     else { Err(InterpretError::WrongType) }
                 }
             }
@@ -325,10 +351,10 @@ impl InterpreterState {
                 if_chain! {
                     if let GObject::Point(a) = get!(self.objects, a);
                     if let GObject::Point(b) = get!(self.objects, b);
-                    then { Ok(GObject::Circle(map_calc_err!(Circle::from_center_point(
+                    then { Ok(GObject::Circle(Circle::from_center_point(
                         midpoint(*a, *b),
                         *b
-                    )))) }
+                    )?)) }
                     else { Err(InterpretError::WrongType) }
                 }
             }
@@ -336,6 +362,7 @@ impl InterpreterState {
             _ => unreachable!(),
         }
     }
+    /// Get objects that appears in arguments.
     #[inline]
     fn get_arg_obj(&self, obj: Object) -> Result<GObject> {
         match obj {
@@ -343,7 +370,7 @@ impl InterpreterState {
                 if_chain! {
                     if let GObject::Point(a) = get!(self.objects, a);
                     if let GObject::Point(b) = get!(self.objects, b);
-                    then { Ok(GObject::Line(map_calc_err!(Line::from_2p(*a, *b)))) }
+                    then { Ok(GObject::Line(Line::from_2p(*a, *b)?)) }
                     else { Err(InterpretError::WrongType) }
                 }
             }
@@ -357,10 +384,12 @@ impl InterpreterState {
                 }
             }
             Object::Numeric(n) => Ok(GObject::Number(self.get_numeric(n)?)),
+            // TODO: Evaluation.
             Object::Eval(_) => unimplemented!(),
             _ => self.get_common(obj),
         }
     }
+    /// Get objects to draw.
     #[inline]
     fn get_draw_obj(&self, obj: Object) -> Result<DObject> {
         match obj {
@@ -377,11 +406,19 @@ impl InterpreterState {
                     if let GObject::Point(a) = get!(self.objects, a);
                     if let GObject::Point(b) = get!(self.objects, b);
                     if let GObject::Point(c) = get!(self.objects, c);
-                    then { Ok(DObject::Arc(map_calc_err!(Arc::from_3p(*a, *b, *c)))) }
+                    then { Ok(DObject::Arc(Arc::from_3p(*a, *b, *c)?)) }
                     else { Err(InterpretError::WrongType) }
                 }
             }
-            Object::ArcO(_, _, _) => unimplemented!(),
+            Object::ArcO(a, o, b) => {
+                if_chain! {
+                    if let GObject::Point(a) = get!(self.objects, a);
+                    if let GObject::Point(o) = get!(self.objects, o);
+                    if let GObject::Point(b) = get!(self.objects, b);
+                    then { Ok(DObject::Arc(Arc::from_center(*a, *o, *b)?)) }
+                    else { Err(InterpretError::WrongType) }
+                }
+            },
             Object::Polygon(p) => {
                 let mut points = Vec::new();
                 for s in p {

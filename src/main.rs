@@ -22,6 +22,8 @@ Q, _ = i k, d, B;
 draw c, d, A, B, S, T, ST, P, Q, PQ;            
 config color=\"red\";
 draw SP, TQ;
+config decorcolor=\"blue\";
+decor SP: >, TQ: >;
 save out.svg;",
         )
         .unwrap();

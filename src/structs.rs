@@ -5,7 +5,12 @@
 use std::f64::consts::PI;
 
 use metric_rs::{
-    calc::{basic::angle, exception::Result as CalcResult, point_on::PointOn, transform::Rotate},
+    calc::{
+        basic::{angle, Distance},
+        exception::Result as CalcResult,
+        point_on::PointOn,
+        transform::Rotate,
+    },
     objects::{Circle, Point},
 };
 
@@ -33,9 +38,9 @@ impl Arc {
         let Point { x: x2, y: y2 } = C - B;
         let large_arc = x1 * x2 + y1 * y2 < 0.0;
         let sweep = x1 * y2 > x2 * y1;
-        let mut angle = angle(A, O, C)?;
-        angle = if large_arc { 2.0 * PI - angle } else { angle };
-        angle = if sweep { angle } else { -angle };
+        let angle = angle(A, O, C)?;
+        let angle = if large_arc { 2.0 * PI - angle } else { angle };
+        let angle = if sweep { angle } else { -angle };
         Ok(Arc {
             from: A,
             to: C,
@@ -43,6 +48,24 @@ impl Arc {
             r,
             large_arc,
             sweep,
+            angle,
+        })
+    }
+    pub fn from_center(A: Point, O: Point, B: Point) -> CalcResult<Self> {
+        let Point { x: x1, y: y1 } = O - A;
+        let Point { x: x2, y: y2 } = B - O;
+        let r = O.distance(A);
+        let large_arc = x1 * y2 < x2 * y1;
+        let angle = angle(A, O, B)?;
+        let angle = if large_arc { 2.0 * PI - angle } else { angle };
+        let angle = -angle;
+        Ok(Arc {
+            from: A,
+            to: B,
+            O,
+            r,
+            sweep: false,
+            large_arc,
             angle,
         })
     }

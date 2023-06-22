@@ -6,18 +6,18 @@ use metric_rs::{
     objects::*,
 };
 
-use super::{utils::FuncErr, utils::GObject};
+use super::{utils::FuncError, utils::GObject};
 
 macro_rules! ret_branch {
     ([$(<$var:ident>$param:ident),+] => <$ret:ident,None>$body:expr) => {
         return match $body {
-            Err(e) => Err(FuncErr::CalcError(e)),
+            Err(e) => Err(FuncError::CalcError(e)),
             Ok(x) => Ok((GObject::$ret(x), GObject::None)),
         }
     };
     ([$(<$var:ident>$param:ident),+] => <$ret1:ident,$ret2:ident>$body:expr) => {
         return match $body {
-            Err(e) => Err(FuncErr::CalcError(e)),
+            Err(e) => Err(FuncError::CalcError(e)),
             Ok((x, y)) => Ok((GObject::$ret1(x), GObject::$ret2(y))),
         }
     };
@@ -35,14 +35,16 @@ macro_rules! entry {
                         ret_branch!([$(<$var>$param),+] => <$ret1, $ret2>$body);
                     }
                 )+
-                Err(FuncErr::ArgError)
+                Err(FuncError::ArgError)
             }) as _,
         )
     };
 }
 
+type GFunction = fn(Vec<GObject>) -> Result<(GObject, GObject), FuncError>;
+
 lazy_static! {
-    pub(super) static ref FUNCTIONS: HashMap<String, fn(Vec<GObject>) -> Result<(GObject, GObject), FuncErr>> =
+    pub static ref FUNCTIONS: HashMap<String, GFunction> =
         HashMap::from([
             // Constructs
             entry!(
