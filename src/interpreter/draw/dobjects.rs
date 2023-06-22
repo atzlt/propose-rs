@@ -11,6 +11,7 @@ use if_chain::if_chain;
 use itertools::Itertools;
 use metric_rs::calc::point_on::PointOn;
 use metric_rs::objects::Point;
+use std::f64::consts::PI;
 use std::fmt::Display;
 
 #[derive(Debug)]
@@ -83,7 +84,7 @@ impl Display for StyledDObject<'_> {
                 write_circle!(
                     f,
                     p,
-                    self.get_unchecked("dotsize"),
+                    self.get_unchecked("dotsize") => in px,
                     self.get_unchecked("dotstroke"),
                     self.get_unchecked("dotfill"),
                     self.get_unchecked("dotwidth"),
@@ -146,6 +147,28 @@ impl StyledDObject<'_> {
             DObject::Arc(arc) => Some(arc.point_on(loc)),
             DObject::Segment(seg) => Some(seg.point_on(loc)),
             DObject::Angle3P(_, _, _) => todo!(),
+            _ => None,
+        }
+    }
+
+    pub(super) fn get_tan_angle(&self, loc: f64) -> Option<f64> {
+        match &self.obj {
+            DObject::Segment(seg) => {
+                let Segment { from, to } = seg;
+                Some((from.y - to.y).atan2(from.x - to.x))
+            }
+            DObject::Circle(_) => Some(-(loc + 0.25) * PI * 2.0),
+            DObject::Arc(arc) => {
+                let Arc { from, to, O, .. } = arc;
+                let start = (O.x - from.x).atan2(from.y - O.y);
+                let end = (O.x - to.x).atan2(to.y - O.y);
+                Some(loc * end + (1.0 - loc) * start)
+            }
+            DObject::Angle3P(a, o, b) => {
+                let start = (o.x - a.x).atan2(a.y - o.y);
+                let end = (o.x - b.x).atan2(b.y - o.y);
+                Some(loc * end + (1.0 - loc) * start)
+            }
             _ => None,
         }
     }

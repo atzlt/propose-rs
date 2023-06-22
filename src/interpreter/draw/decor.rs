@@ -24,7 +24,6 @@ impl DecorConfig {
         if_chain! {
             if let ConfigValue::Number(loc) = dobj.get_unchecked("loc");
             if let ConfigValue::Number(size) = dobj.get_unchecked("decorsize");
-            if let ConfigValue::Number(angle) = dobj.get_unchecked("decorangle");
             if let ConfigValue::Number(width) = dobj.get_unchecked("decorwidth");
             if let ConfigValue::String(color) = dobj.get_unchecked("decorcolor");
             if let ConfigValue::String(fill) = dobj.get_unchecked("decorfill");
@@ -32,7 +31,7 @@ impl DecorConfig {
                 Ok(DecorConfig {
                     pos: dobj.get_position(*loc).ok_or(DecorError::ObjNotSupported)?,
                     size: *size,
-                    angle: *angle,
+                    angle: dobj.get_tan_angle(*loc).ok_or(DecorError::ObjNotSupported)?,
                     width: *width,
                     color: color.clone(),
                     fill: fill.clone(),
@@ -44,18 +43,10 @@ impl DecorConfig {
 }
 
 impl StyledDObject<'_> {
-    /// **This method _assumes_ that `decor` config is present.**
-    pub fn decor(&self) -> Result<String, DecorError> {
+    pub fn decor(&self, decor: &str) -> Result<String, DecorError> {
         let decor_config = DecorConfig::get_from_styled_dobj(self)?;
-        let decor = self.get_unchecked("decor");
-        if let ConfigValue::String(decor) = decor {
-            let decor_func = DECORATIONS
-                .get(decor.as_str())
-                .ok_or(DecorError::NoSuchDecor)?;
-            Ok(decor_func(decor_config))
-        } else {
-            Err(DecorError::WrongConfigType)
-        }
+        let decor_func = DECORATIONS.get(decor).ok_or(DecorError::NoSuchDecor)?;
+        Ok(decor_func(decor_config))
     }
 }
 
@@ -82,7 +73,7 @@ lazy_static! {
             let p1 = pos + offset;
             let p2 = pos - offset;
             let mut string = String::new();
-            write_line!(string, p1, p2, color, width, "").unwrap();
+            write_line!(string, p1, p2 => in px, color, width, "").unwrap();
             string
         }),
         entry!("||", |DecorConfig {
@@ -102,7 +93,7 @@ lazy_static! {
             write_line!(
                 string,
                 pos - gap + offset,
-                pos - gap - offset,
+                pos - gap - offset => in px,
                 color,
                 width,
                 ""
@@ -111,7 +102,7 @@ lazy_static! {
             write_line!(
                 string,
                 pos + gap + offset,
-                pos + gap - offset,
+                pos + gap - offset => in px,
                 color,
                 width,
                 ""
@@ -138,8 +129,8 @@ lazy_static! {
             );
             let pos = pos * CM;
             let mut string = String::new();
-            write_line!(string, pos + offset1, pos + offset2, color, width, "").unwrap();
-            write_line!(string, pos + offset1, pos + offset3, color, width, "").unwrap();
+            write_line!(string, pos + offset1, pos + offset2 => in px, color, width, "").unwrap();
+            write_line!(string, pos + offset1, pos + offset3 => in px, color, width, "").unwrap();
             string
         })
     ]);

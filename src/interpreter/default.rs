@@ -24,6 +24,10 @@ lazy_static! {
         entry!("labelsize", 15.0),
         entry!("dist", 10.0),
         entry!("angle", 0.0),
+        entry!("decorsize", 8.0),
+        entry!("decorwidth", 1.5),
+        entry!("decorcolor", "#000000"),
+        entry!("decorfill", "#00000000"),
         entry!("loc", 0.5),
         entry!("font", "serif"),
     ]);

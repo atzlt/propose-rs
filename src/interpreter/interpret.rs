@@ -191,9 +191,6 @@ impl InterpreterState {
             if obj.get("label").is_some() {
                 self.layer.emit(LayerType::Text, obj.label()?.as_str());
             }
-            if obj.get("decor").is_some() {
-                self.layer.emit(LayerType::Decor, obj.decor()?.as_str());
-            }
         }
         Ok(())
     }
@@ -205,9 +202,7 @@ impl InterpreterState {
                 local_conf: step.config,
                 global_conf: &self.config,
             };
-            if obj.get("decor").is_some() {
-                self.layer.emit(LayerType::Decor, obj.decor()?.as_str());
-            }
+            self.layer.emit(LayerType::Decor, obj.decor(&step.decor)?.as_str());
         }
         Ok(())
     }
