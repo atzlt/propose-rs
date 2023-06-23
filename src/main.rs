@@ -23,9 +23,7 @@ draw c, d, A, B, S, T, ST, P, Q, PQ;
 config color=\"red\";
 draw SP, TQ;
 config decorcolor=\"blue\";
-decor SP: >, TQ: >;
-save out.svg;",
+decor SP: >, TQ: >;",
         )
         .unwrap();
-    dbg!(interpreter);
 }

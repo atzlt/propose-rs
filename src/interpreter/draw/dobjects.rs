@@ -1,9 +1,9 @@
-use crate::structs::{Arc, Segment};
 use crate::{
     interpreter::{
-        ast::{Config, ConfigValue},
         draw::CM,
-        utils::DObject,
+        parser::ast::Config,
+        structs::{Arc, Segment},
+        utils::{ConfigValue, DObject},
     },
     write_circle, write_line,
 };

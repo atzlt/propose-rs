@@ -1,4 +1,6 @@
-use std::{collections::HashMap, fmt::Display};
+use std::collections::HashMap;
+
+use crate::interpreter::utils::ConfigValue;
 
 #[derive(Debug)]
 pub enum Linear {
@@ -21,7 +23,7 @@ pub enum Numeric {
 pub enum Object {
     Line2P(String, String),
     Circ3P(String, String, String),
-    CircOr(String, Numeric),
+    CircOr(String, Box<Numeric>),
     CircOA(String, String),
     CircDiam(String, String),
     Arc(String, String, String),
@@ -30,16 +32,16 @@ pub enum Object {
     Triangle(String, String, String),
     Polygon(Vec<String>),
     Name(String),
-    Numeric(Numeric),
+    Numeric(Box<Numeric>),
     Eval(String),
 }
 
 #[derive(Debug)]
 pub enum DeclRight {
-    OrthoCoord(Numeric, Numeric),
-    PolarCoord(Numeric, Numeric),
+    OrthoCoord(Box<Numeric>, Box<Numeric>),
+    PolarCoord(Box<Numeric>, Box<Numeric>),
     Expr(String, Vec<Object>),
-    Object(Object),
+    Object(Box<Object>),
 }
 
 #[derive(Debug)]
@@ -50,24 +52,6 @@ pub enum DeclLeft {
 
 #[derive(Debug)]
 pub struct Decl(pub DeclLeft, pub DeclRight);
-
-#[derive(Debug, Clone)]
-pub enum ConfigValue {
-    Number(f64),
-    String(String),
-    Bool(bool),
-}
-
-impl Display for ConfigValue {
-    #[inline]
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::String(s) => write!(f, "{}", s),
-            Self::Bool(b) => write!(f, "{}", b),
-            Self::Number(n) => write!(f, "{}", n),
-        }
-    }
-}
 
 pub type Config = HashMap<String, ConfigValue>;
 
@@ -89,7 +73,7 @@ pub type Decor = Vec<DecorObject>;
 
 #[derive(Debug)]
 pub enum FileLine {
-    Config(Box<Config>),
+    Config(Config),
     Draw(Draw),
     Decor(Decor),
     Save(String),

@@ -1,8 +1,24 @@
+use std::fmt::Display;
 use metric_rs::{calc::exception::CalcException, objects::{Point, Circle, Line}};
+use super::{structs::{Segment, Arc}, interpret::InterpretError};
 
-use crate::structs::{Segment, Arc};
+#[derive(Debug, Clone)]
+pub enum ConfigValue {
+    Number(f64),
+    String(String),
+    Bool(bool),
+}
 
-use super::ast::ConfigValue;
+impl Display for ConfigValue {
+    #[inline]
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::String(s) => write!(f, "{}", s),
+            Self::Bool(b) => write!(f, "{}", b),
+            Self::Number(n) => write!(f, "{}", n),
+        }
+    }
+}
 
 #[derive(Debug)]
 pub enum ConversionError {
@@ -61,7 +77,7 @@ impl From<GObject> for Result<DObject, InterpretError> {
         match val {
             GObject::Circle(c) => Ok(DObject::Circle(c)),
             GObject::Point(p) => Ok(DObject::Point(p)),
-            _ => Err(InterpretError::WrongType),
+            _ => Err(InterpretError::WrongGeometricType),
         }
     }
 }
@@ -80,24 +96,13 @@ pub enum DecorError {
 }
 
 #[derive(Debug)]
-pub enum InterpretError {
-    ParseError(String),
-    FuncError(FuncError),
-    MissingKey(String),
-    IOError(std::io::Error),
-    WrongType,
-    WrongConfigType,
-    LabelObjNotSupported,
-    DecorObjNotSupported,
-    NoSuchDecor,
-}
-
-#[derive(Debug)]
 pub enum FuncError {
     CalcError(CalcException),
     ArgError,
     NoFunc(String),
 }
+
+// Conversions.
 
 impl From<bool> for ConfigValue {
     #[inline]
@@ -146,6 +151,34 @@ impl From<DecorError> for InterpretError {
             DecorError::ObjNotSupported => Self::DecorObjNotSupported,
             DecorError::WrongConfigType => Self::WrongConfigType,
             DecorError::NoSuchDecor => Self::NoSuchDecor
+        }
+    }
+}
+
+// Display error.
+
+impl Display for InterpretError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            InterpretError::DecorObjNotSupported => write!(f, "Cannot decorate object"),
+            InterpretError::FuncError(e) => write!(f, "Error when running function: {}", e),
+            InterpretError::IOError(e) => write!(f, "Error when saving file: {}", e),
+            InterpretError::LabelObjNotSupported => write!(f, "Cannot label object"),
+            InterpretError::MissingKey(key) => write!(f, "Cannot find name: {}", key),
+            InterpretError::NoSuchDecor => write!(f, "No such decoration"),
+            InterpretError::ParseError(e) => write!(f, "Cannot parse content: {}", e),
+            InterpretError::WrongConfigType => write!(f, "Type of configuration is not correct"),
+            InterpretError::WrongGeometricType => write!(f, "Type of geometric object is not correct"),
+        }
+    }
+}
+
+impl Display for FuncError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            FuncError::ArgError => write!(f, "Wrong argument"),
+            FuncError::CalcError(e) => write!(f, "Exception during calculation: {}", e),
+            FuncError::NoFunc(name) => write!(f, "No such method: {}", name),
         }
     }
 }

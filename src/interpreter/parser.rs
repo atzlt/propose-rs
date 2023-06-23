@@ -1,16 +1,17 @@
-use std::f64::consts::PI;
+pub mod ast;
 
 use pest_consume::Parser;
 use pest_consume::{match_nodes, Error};
-
-use super::ast::*;
+use std::f64::consts::PI;
+use ast::*;
+use super::utils::ConfigValue;
 
 type Result<T> = std::result::Result<T, Error<Rule>>;
 type Node<'i> = pest_consume::Node<'i, Rule, ()>;
 
 #[derive(Parser)]
 #[grammar = "interpreter/parser.pest"]
-pub struct ProposeParser;
+struct ProposeParser;
 
 #[inline]
 pub fn parse(src: &str) -> Result<Main> {
@@ -47,7 +48,7 @@ impl ProposeParser {
     fn circ_or(input: Node) -> Result<Object> {
         match_nodes!(
             input.into_children();
-            [point_id(a), numeric(b)] => Ok(Object::CircOr(a, b)),
+            [point_id(a), numeric(b)] => Ok(Object::CircOr(a, Box::new(b))),
         )
     }
     #[inline]
@@ -189,14 +190,14 @@ impl ProposeParser {
     fn ortho_coord(input: Node) -> Result<DeclRight> {
         match_nodes!(
             input.into_children();
-            [numeric(a), numeric(b)] => Ok(DeclRight::OrthoCoord(a, b))
+            [numeric(a), numeric(b)] => Ok(DeclRight::OrthoCoord(Box::new(a), Box::new(b)))
         )
     }
     #[inline]
     fn polar_coord(input: Node) -> Result<DeclRight> {
         match_nodes!(
             input.into_children();
-            [numeric(a), numeric(b)] => Ok(DeclRight::PolarCoord(a, b))
+            [numeric(a), numeric(b)] => Ok(DeclRight::PolarCoord(Box::new(a), Box::new(b)))
         )
     }
     #[inline]
@@ -237,7 +238,7 @@ impl ProposeParser {
             input.into_children();
             [trig(a)] => Ok(a),
             [common_obj(a)] => Ok(a),
-            [numeric(a)] => Ok(Object::Numeric(a)),
+            [numeric(a)] => Ok(Object::Numeric(Box::new(a))),
             [eval(a)] => Ok(a),
         )
     }
@@ -289,8 +290,8 @@ impl ProposeParser {
             input.into_children();
             [coord(a)] => Ok(a),
             [expr(a)] => Ok(a),
-            [arg(a)] => Ok(DeclRight::Object(a)),
-            [eval(a)] => Ok(DeclRight::Object(a)),
+            [arg(a)] => Ok(DeclRight::Object(Box::new(a))),
+            [eval(a)] => Ok(DeclRight::Object(Box::new(a))),
         )
     }
     #[inline]
@@ -394,7 +395,7 @@ impl ProposeParser {
     fn file_line(input: Node) -> Result<FileLine> {
         match_nodes!(
             input.into_children();
-            [config_line(a)] => Ok(FileLine::Config(Box::new(a))),
+            [config_line(a)] => Ok(FileLine::Config(a)),
             [draw(a)] => Ok(FileLine::Draw(a)),
             [decor(a)] => Ok(FileLine::Decor(a)),
             [save_file(a)] => Ok(FileLine::Save(a)),

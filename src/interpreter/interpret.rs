@@ -1,13 +1,12 @@
+use super::structs::{Arc, Segment};
 use super::{
-    ast::*,
-    default::DEFAULT_CONFIG,
+    builtin::{config::DEFAULT_CONFIG, functions::FUNCTIONS},
     draw::dobjects::StyledDObject,
-    functions::FUNCTIONS,
+    parser::ast::*,
     parser::parse,
-    utils::{DObject, GObject, InterpretError},
+    utils::{ConfigValue, DObject, GObject},
 };
 use crate::interpreter::{draw::CM, utils::FuncError};
-use crate::structs::{Arc, Segment};
 use if_chain::if_chain;
 use metric_rs::{
     calc::{
@@ -48,6 +47,19 @@ impl Layer {
     }
 }
 
+#[derive(Debug)]
+pub enum InterpretError {
+    ParseError(String),
+    FuncError(FuncError),
+    MissingKey(String),
+    IOError(std::io::Error),
+    WrongGeometricType,
+    WrongConfigType,
+    LabelObjNotSupported,
+    DecorObjNotSupported,
+    NoSuchDecor,
+}
+
 /// Represents the state of an interpreter.
 #[derive(Debug)]
 pub struct InterpreterState {
@@ -85,9 +97,7 @@ impl InterpreterState {
     pub fn interpret(&mut self, source: &str) -> Result<()> {
         let input = parse(source);
         match input {
-            Err(e) => {
-                Err(InterpretError::ParseError(e.to_string()))
-            }
+            Err(e) => Err(InterpretError::ParseError(e.to_string())),
             Ok(input) => {
                 for line in input {
                     self._interpret(line)?;
@@ -99,7 +109,7 @@ impl InterpreterState {
     #[inline]
     fn _interpret(&mut self, input: FileLine) -> Result<()> {
         match input {
-            FileLine::Config(config) => self.config(*config),
+            FileLine::Config(config) => self.config(config),
             FileLine::Decl(decl) => self.decl(*decl),
             FileLine::Draw(draw) => self.draw(draw),
             FileLine::Decor(decor) => self.decor(decor),
@@ -136,13 +146,13 @@ impl InterpreterState {
     fn decl_right(&self, decl: DeclRight) -> Result<(GObject, GObject)> {
         match decl {
             DeclRight::OrthoCoord(x, y) => {
-                let x = self.get_numeric(x)?;
-                let y = self.get_numeric(y)?;
+                let x = self.get_numeric(*x)?;
+                let y = self.get_numeric(*y)?;
                 Ok((GObject::Point(Point { x, y }), GObject::None))
             }
             DeclRight::PolarCoord(r, t) => {
-                let r = self.get_numeric(r)?;
-                let t = self.get_numeric(t)?;
+                let r = self.get_numeric(*r)?;
+                let t = self.get_numeric(*t)?;
                 Ok((
                     GObject::Point(Point {
                         x: r * t.cos(),
@@ -151,9 +161,9 @@ impl InterpreterState {
                     GObject::None,
                 ))
             }
-            DeclRight::Object(obj) => Ok((self.get_arg_obj(obj)?, GObject::None)),
+            DeclRight::Object(obj) => Ok((self.get_arg_obj(*obj)?, GObject::None)),
             DeclRight::Expr(method, args) => {
-                let mut gobjs = Vec::new();
+                let mut gobjs = Vec::with_capacity(args.len());
                 // Get all arguments.
                 for arg in args {
                     let obj = self.get_arg_obj(arg)?;
@@ -202,7 +212,8 @@ impl InterpreterState {
                 local_conf: step.config,
                 global_conf: &self.config,
             };
-            self.layer.emit(LayerType::Decor, obj.decor(&step.decor)?.as_str());
+            self.layer
+                .emit(LayerType::Decor, obj.decor(&step.decor)?.as_str());
         }
         Ok(())
     }
@@ -250,7 +261,7 @@ impl InterpreterState {
                 if let GObject::Line(l) = get!(self.objects, s) {
                     Ok(*l)
                 } else {
-                    Err(InterpretError::WrongType)
+                    Err(InterpretError::WrongGeometricType)
                 }
             }
             Linear::Line2P(a, b) => {
@@ -258,7 +269,7 @@ impl InterpreterState {
                     if let GObject::Point(a) = get!(self.objects, a);
                     if let GObject::Point(b) = get!(self.objects, b);
                     then { Ok(Line::from_2p(*a, *b)?) }
-                    else { Err(InterpretError::WrongType) }
+                    else { Err(InterpretError::WrongGeometricType) }
                 }
             }
         }
@@ -272,7 +283,7 @@ impl InterpreterState {
                 if let GObject::Number(x) = get!(self.objects, s) {
                     Ok(*x)
                 } else {
-                    Err(InterpretError::WrongType)
+                    Err(InterpretError::WrongGeometricType)
                 }
             }
             Numeric::Distance2P(a, b) => {
@@ -280,7 +291,7 @@ impl InterpreterState {
                     if let GObject::Point(a) = get!(self.objects, a);
                     if let GObject::Point(b) = get!(self.objects, b);
                     then { Ok(a.distance(*b)) }
-                    else { Err(InterpretError::WrongType) }
+                    else { Err(InterpretError::WrongGeometricType) }
                 }
             }
             Numeric::DistancePL(a, l) => {
@@ -288,7 +299,7 @@ impl InterpreterState {
                     let l = self.get_linear(l)?;
                     Ok(a.distance(l))
                 } else {
-                    Err(InterpretError::WrongType)
+                    Err(InterpretError::WrongGeometricType)
                 }
             }
             Numeric::Distance2L(k, l) => {
@@ -302,7 +313,7 @@ impl InterpreterState {
                     if let GObject::Point(o) = get!(self.objects, o);
                     if let GObject::Point(b) = get!(self.objects, b);
                     then { Ok(angle(*a, *o, *b)?) }
-                    else { Err(InterpretError::WrongType) }
+                    else { Err(InterpretError::WrongGeometricType) }
                 }
             }
             Numeric::Angle2L(k, l) => {
@@ -323,15 +334,15 @@ impl InterpreterState {
                     if let GObject::Point(b) = get!(self.objects, b);
                     if let GObject::Point(c) = get!(self.objects, c);
                     then { Ok(GObject::Circle(Circle::from_3p(*a, *b, *c)?)) }
-                    else { Err(InterpretError::WrongType) }
+                    else { Err(InterpretError::WrongGeometricType) }
                 }
             }
             Object::CircOr(o, r) => {
                 if let GObject::Point(o) = get!(self.objects, o) {
-                    let r = self.get_numeric(r)?;
+                    let r = self.get_numeric(*r)?;
                     Ok(GObject::Circle(Circle::from_center_radius(*o, r)?))
                 } else {
-                    Err(InterpretError::WrongType)
+                    Err(InterpretError::WrongGeometricType)
                 }
             }
             Object::CircOA(a, b) => {
@@ -339,7 +350,7 @@ impl InterpreterState {
                     if let GObject::Point(a) = get!(self.objects, a);
                     if let GObject::Point(b) = get!(self.objects, b);
                     then { Ok(GObject::Circle(Circle::from_center_point(*a, *b)?)) }
-                    else { Err(InterpretError::WrongType) }
+                    else { Err(InterpretError::WrongGeometricType) }
                 }
             }
             Object::CircDiam(a, b) => {
@@ -350,7 +361,7 @@ impl InterpreterState {
                         midpoint(*a, *b),
                         *b
                     )?)) }
-                    else { Err(InterpretError::WrongType) }
+                    else { Err(InterpretError::WrongGeometricType) }
                 }
             }
             // This is assured by the parser.
@@ -366,7 +377,7 @@ impl InterpreterState {
                     if let GObject::Point(a) = get!(self.objects, a);
                     if let GObject::Point(b) = get!(self.objects, b);
                     then { Ok(GObject::Line(Line::from_2p(*a, *b)?)) }
-                    else { Err(InterpretError::WrongType) }
+                    else { Err(InterpretError::WrongGeometricType) }
                 }
             }
             Object::Triangle(a, b, c) => {
@@ -375,10 +386,10 @@ impl InterpreterState {
                     if let GObject::Point(b) = get!(self.objects, b);
                     if let GObject::Point(c) = get!(self.objects, c);
                     then { Ok(GObject::Trig((*a, *b, *c))) }
-                    else { Err(InterpretError::WrongType) }
+                    else { Err(InterpretError::WrongGeometricType) }
                 }
             }
-            Object::Numeric(n) => Ok(GObject::Number(self.get_numeric(n)?)),
+            Object::Numeric(n) => Ok(GObject::Number(self.get_numeric(*n)?)),
             // TODO: Evaluation.
             Object::Eval(_) => unimplemented!(),
             _ => self.get_common(obj),
@@ -393,7 +404,7 @@ impl InterpreterState {
                     if let GObject::Point(a) = get!(self.objects, a);
                     if let GObject::Point(b) = get!(self.objects, b);
                     then { Ok(DObject::Segment(Segment { from: *a, to: *b })) }
-                    else { Err(InterpretError::WrongType) }
+                    else { Err(InterpretError::WrongGeometricType) }
                 }
             }
             Object::Arc(a, b, c) => {
@@ -402,7 +413,7 @@ impl InterpreterState {
                     if let GObject::Point(b) = get!(self.objects, b);
                     if let GObject::Point(c) = get!(self.objects, c);
                     then { Ok(DObject::Arc(Arc::from_3p(*a, *b, *c)?)) }
-                    else { Err(InterpretError::WrongType) }
+                    else { Err(InterpretError::WrongGeometricType) }
                 }
             }
             Object::ArcO(a, o, b) => {
@@ -411,16 +422,16 @@ impl InterpreterState {
                     if let GObject::Point(o) = get!(self.objects, o);
                     if let GObject::Point(b) = get!(self.objects, b);
                     then { Ok(DObject::Arc(Arc::from_center(*a, *o, *b)?)) }
-                    else { Err(InterpretError::WrongType) }
+                    else { Err(InterpretError::WrongGeometricType) }
                 }
-            },
+            }
             Object::Polygon(p) => {
-                let mut points = Vec::new();
+                let mut points = Vec::with_capacity(p.len());
                 for s in p {
                     if let GObject::Point(a) = get!(self.objects, s) {
                         points.push(*a);
                     } else {
-                        return Err(InterpretError::WrongType);
+                        return Err(InterpretError::WrongGeometricType);
                     }
                 }
                 Ok(DObject::Polygon(points))
@@ -431,7 +442,7 @@ impl InterpreterState {
                     if let GObject::Point(b) = get!(self.objects, b);
                     if let GObject::Point(c) = get!(self.objects, c);
                     then { Ok(DObject::Angle3P(*a, *b, *c)) }
-                    else { Err(InterpretError::WrongType) }
+                    else { Err(InterpretError::WrongGeometricType) }
                 }
             }
             _ => self.get_common(obj)?.into(),

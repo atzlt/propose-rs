@@ -1,7 +1,6 @@
-mod ast;
-mod functions;
-pub mod interpret;
-mod parser;
+mod builtin;
 mod draw;
+pub mod interpret;
+pub mod parser;
 mod utils;
-mod default;
+mod structs;

@@ -2,11 +2,11 @@ use std::collections::HashMap;
 
 use lazy_static::lazy_static;
 use metric_rs::{
-    calc::{basic::*, construct::*, transform::*},
+    calc::{basic::*, construct::*, transform::{Reflect, Invert}},
     objects::*,
 };
 
-use super::{utils::FuncError, utils::GObject};
+use crate::interpreter::{utils::FuncError, utils::GObject};
 
 macro_rules! ret_branch {
     ([$(<$var:ident>$param:ident),+] => <$ret:ident,None>$body:expr) => {
@@ -83,12 +83,26 @@ lazy_static! {
                 "mid";
                 [<Point>a, <Point>b] => <Point, None>Ok(midpoint(a, b))
             ),
+            // Transformation
+            entry!(
+                "rfl";
+                [<Point>a, <Point>b] => <Point, None>Ok(a.reflect_in(b)),
+                [<Line>a, <Point>b] => <Line, None>Ok(a.reflect_in(b)),
+                [<Circle>a, <Point>b] => <Circle, None>Ok(a.reflect_in(b)),
+                [<Point>a, <Line>b] => <Point, None>Ok(a.reflect_in(b)),
+                [<Line>a, <Line>b] => <Line, None>Ok(a.reflect_in(b))
+            ),
+            // TODO: Inversion has two possible outcome, so treat it differently.
             // Object creation
             entry!(
                 "l";
                 [<Point>a, <Point>b] => <Line, None>Line::from_2p(a, b),
                 [<Number>a, <Number>b, <Number>c] => <Line, None>Line::from_coeff(a, b, c),
                 [<Number>a, <Number>b, <Point>p] => <Line, None>Ok(Line::from_slope_and_point(a, b, p))
+            ),
+            entry!(
+                "circ";
+                [<Circle>c] => <Point, Number>Ok((c.O, c.r))
             )
         ]);
 }

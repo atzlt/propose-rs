@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use lazy_static::lazy_static;
 
-use super::ast::ConfigValue;
+use crate::interpreter::utils::ConfigValue;
 
 macro_rules! entry {
     ($key:literal, $val:literal) => {
