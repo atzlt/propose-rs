@@ -4,8 +4,8 @@ use crate::{
 };
 use lazy_static::lazy_static;
 use metric_rs::objects::Point;
+use std::{f64::consts::PI, collections::HashMap};
 use std::fmt::Write;
-use std::{collections::HashMap, f64::consts::PI};
 
 type DecorFunction = fn(DecorConfig) -> String;
 

@@ -54,6 +54,13 @@ pub fn interpreter_bench(c: &mut Criterion) {
             black_box(interpreter.interpret(NINEPOINT))
         })
     });
+    c.bench_function("Interpreter - Reim's Thm with Clear", |b| {
+        b.iter(|| {
+            let mut interpreter = InterpreterState::new();
+            black_box(interpreter.interpret(REIM).unwrap());
+            interpreter.clear()
+        })
+    });
 }
 
 criterion_group!(interpreter, interpreter_bench);

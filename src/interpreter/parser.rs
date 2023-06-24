@@ -14,6 +14,7 @@ type Node<'i> = pest_consume::Node<'i, Rule, ()>;
 struct ProposeParser;
 
 #[inline]
+#[allow(clippy::result_large_err)]
 pub fn parse(src: &str) -> Result<Main> {
     let inputs = ProposeParser::parse(Rule::main, src)?;
     let input = inputs.single()?;

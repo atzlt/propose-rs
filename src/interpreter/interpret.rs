@@ -95,6 +95,12 @@ impl InterpreterState {
         }
     }
     #[inline]
+    pub fn clear(&mut self) -> () {
+        self.objects.clear();
+        self.layer.0.clear();
+        self.config.clone_from(&DEFAULT_CONFIG);
+    }
+    #[inline]
     pub fn interpret(&mut self, source: &str) -> Result<()> {
         let input = parse(source);
         match input {
