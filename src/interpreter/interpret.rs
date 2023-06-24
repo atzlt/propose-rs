@@ -15,6 +15,7 @@ use metric_rs::{
     },
     objects::{Circle, Line, Point},
 };
+use std::path::Path;
 use std::{collections::HashMap, fs};
 
 type Result<T> = std::result::Result<T, InterpretError>;
@@ -218,7 +219,10 @@ impl InterpreterState {
         Ok(())
     }
     #[inline]
-    fn save(&self, path: String) -> Result<()> {
+    pub fn save<P>(&self, path: P) -> Result<()>
+    where
+        P: AsRef<Path>,
+    {
         fs::write(path, self.emit()?).map_err(InterpretError::IOError)
     }
     /// Emit the complete SVG code.

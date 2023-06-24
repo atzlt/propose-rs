@@ -1,5 +1,5 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use propose::interpreter::{interpret::InterpreterState, parser::parse};
+use propose::interpreter::interpret::InterpreterState;
 
 const REIM: &str = "
 config width=14, height=10, dotsize=7, dotstroke=\"red\", dotwidth=1;
@@ -56,13 +56,5 @@ pub fn interpreter_bench(c: &mut Criterion) {
     });
 }
 
-pub fn parser_bench(c: &mut Criterion) {
-    c.bench_function("Parser - Reim's Thm", |b| b.iter(|| black_box(parse(REIM))));
-    c.bench_function("Parser - Ninepoint", |b| {
-        b.iter(|| black_box(parse(NINEPOINT)))
-    });
-}
-
 criterion_group!(interpreter, interpreter_bench);
-criterion_group!(parser, parser_bench);
-criterion_main!(interpreter, parser);
+criterion_main!(interpreter);
