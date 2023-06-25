@@ -1,3 +1,5 @@
+#![allow(unused_must_use)]
+
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use propose::interpreter::interpret::InterpreterState;
 
@@ -35,29 +37,23 @@ R = proj C, AB;
 
 draw A, B, C, AB, BC, CA, M, N, L, P, Q, R;
 
-config color=\"grey\"
+config color=\"grey\";
 draw AP, BQ, CR;
 
 config color=\"red\";
 draw @(MNL);";
 
 pub fn interpreter_bench(c: &mut Criterion) {
+    let mut interpreter = InterpreterState::new();
     c.bench_function("Interpreter - Reim's Thm", |b| {
         b.iter(|| {
-            let mut interpreter = InterpreterState::new();
-            black_box(interpreter.interpret(REIM))
+            black_box(interpreter.interpret(REIM));
+            interpreter.clear()
         })
     });
     c.bench_function("Interpreter - Ninepoint", |b| {
         b.iter(|| {
-            let mut interpreter = InterpreterState::new();
-            black_box(interpreter.interpret(NINEPOINT))
-        })
-    });
-    c.bench_function("Interpreter - Reim's Thm with Clear", |b| {
-        b.iter(|| {
-            let mut interpreter = InterpreterState::new();
-            black_box(interpreter.interpret(REIM).unwrap());
+            black_box(interpreter.interpret(NINEPOINT));
             interpreter.clear()
         })
     });

@@ -21,7 +21,7 @@ impl StyledDObject<'_> {
             .try_into_f64()
             .map_err(|_| LabelError::WrongConfigType)?;
         let font = self.get_unchecked("font");
-        let pos = self.get_position(loc).ok_or(LabelError::ObjNotSupported)?;
+        let pos = self.get_position(loc);
         Ok(format!(
             "<text font-size=\"{}\" font-family=\"{}\" font-style=\"italic\" text-anchor=\"middle\" dominant-baseline=\"middle\" x=\"{}cm\" y=\"{}cm\">{}</text>",
             size,

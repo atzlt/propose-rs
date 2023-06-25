@@ -9,7 +9,7 @@ use crate::{
 };
 use if_chain::if_chain;
 use itertools::Itertools;
-use metric_rs::calc::point_on::PointOn;
+use metric_rs::calc::{construct::center, point_on::PointOn};
 use metric_rs::objects::Point;
 use std::f64::consts::PI;
 use std::fmt::Display;
@@ -32,7 +32,7 @@ impl StyledDObject<'_> {
             else { self.global_conf.get(&key) }
         }
     }
-    /// Sometimes a config is already present in global config, so no need to check it.
+    /// times a config is already present in global config, so no need to check it.
     #[inline]
     pub(super) fn get_unchecked(&self, key: &str) -> &ConfigValue {
         let key = key.to_string();
@@ -140,36 +140,36 @@ impl Display for StyledDObject<'_> {
 }
 
 impl StyledDObject<'_> {
-    pub(super) fn get_position(&self, loc: f64) -> Option<Point> {
+    pub(super) fn get_position(&self, loc: f64) -> Point {
         match &self.obj {
-            DObject::Point(p) => Some(*p),
-            DObject::Circle(c) => Some(c.point_on(loc)),
-            DObject::Arc(arc) => Some(arc.point_on(loc)),
-            DObject::Segment(seg) => Some(seg.point_on(loc)),
+            DObject::Point(p) => *p,
+            DObject::Circle(c) => c.point_on(loc),
+            DObject::Arc(arc) => arc.point_on(loc),
+            DObject::Segment(seg) => seg.point_on(loc),
+            DObject::Polygon(poly) => center(poly),
             DObject::Angle3P(_, _, _) => todo!(),
-            _ => None,
         }
     }
 
-    pub(super) fn get_tan_angle(&self, loc: f64) -> Option<f64> {
+    pub(super) fn get_tan_angle(&self, loc: f64) -> f64 {
         match &self.obj {
             DObject::Segment(seg) => {
                 let Segment { from, to } = seg;
-                Some((from.y - to.y).atan2(from.x - to.x))
+                (from.y - to.y).atan2(from.x - to.x)
             }
-            DObject::Circle(_) => Some(-(loc + 0.25) * PI * 2.0),
+            DObject::Circle(_) => -(loc + 0.25) * PI * 2.0,
             DObject::Arc(arc) => {
                 let Arc { from, to, O, .. } = arc;
                 let start = (O.x - from.x).atan2(from.y - O.y);
                 let end = (O.x - to.x).atan2(to.y - O.y);
-                Some(loc * end + (1.0 - loc) * start)
+                loc * end + (1.0 - loc) * start
             }
             DObject::Angle3P(a, o, b) => {
                 let start = (o.x - a.x).atan2(a.y - o.y);
                 let end = (o.x - b.x).atan2(b.y - o.y);
-                Some(loc * end + (1.0 - loc) * start)
+                loc * end + (1.0 - loc) * start
             }
-            _ => None,
+            DObject::Polygon(_) | DObject::Point(_) => 0.0,
         }
     }
 }

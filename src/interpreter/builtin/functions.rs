@@ -1,15 +1,29 @@
-use std::collections::HashMap;
-
+use crate::interpreter::{utils::FuncError, utils::GObject};
 use lazy_static::lazy_static;
 use metric_rs::{
-    calc::{basic::*, construct::*, transform::Reflect},
+    calc::{basic::*, construct::*, transform::*, trig::centers::*},
     objects::*,
 };
+use std::collections::HashMap;
 
-use crate::interpreter::{utils::FuncError, utils::GObject};
+impl From<LineInverted> for GObject {
+    #[inline]
+    fn from(value: LineInverted) -> Self {
+        match value {
+            LineInverted::Line(l) => Self::Line(l),
+            LineInverted::Circle(c) => Self::Circle(c),
+        }
+    }
+}
 
 macro_rules! ret_branch {
-    ([$(<$var:ident>$param:ident),+] => <$ret:ident,None>$body:expr) => {
+    ([$(<$var:ident>$param:ident),+] => <dyn, None>$body:expr) => {
+        return match $body {
+            Err(e) => Err(FuncError::CalcError(e)),
+            Ok(x) => Ok((GObject::from(x), GObject::None)),
+        }
+    };
+    ([$(<$var:ident>$param:ident),+] => <$ret:ident, None>$body:expr) => {
         return match $body {
             Err(e) => Err(FuncError::CalcError(e)),
             Ok(x) => Ok((GObject::$ret(x), GObject::None)),
@@ -80,8 +94,28 @@ lazy_static! {
                 [<Line>l, <Line>k] => <Line, Line>Ok(angle_bisect(l, k))
             ),
             entry!(
+                "tan";
+                [<Point>a, <Circle>c] => <Line, Line>tangent(a, c)
+            ),
+            entry!(
+                "outer-tan";
+                [<Circle>c, <Circle>d] => <Line, Line>outer_common_tangent(c, d)
+            ),
+            entry!(
+                "inner-tan";
+                [<Circle>c, <Circle>d] => <Line, Line>inner_common_tangent(c, d)
+            ),
+            entry!(
                 "mid";
                 [<Point>a, <Point>b] => <Point, None>Ok(midpoint(a, b))
+            ),
+            entry!(
+                "rad-ax";
+                [<Circle>c, <Circle>d] => <Line, None>Ok(radical_axis(c, d))
+            ),
+            entry!(
+                "polar";
+                [<Point>a, <Circle>c] => <Line, None>polar_line(a, c)
             ),
             // Transformation
             entry!(
@@ -92,7 +126,12 @@ lazy_static! {
                 [<Point>a, <Line>b] => <Point, None>Ok(a.reflect_in(b)),
                 [<Line>a, <Line>b] => <Line, None>Ok(a.reflect_in(b))
             ),
-            // TODO: Inversion has two possible outcome, so treat it differently.
+            entry!(
+                "inv";
+                [<Point>a, <Circle>c] => <Point, None>a.invert_in(c.O, c.r),
+                [<Line>l, <Circle>c] => <dyn, None>Ok(l.invert_in(c.O, c.r)),
+                [<Circle>d, <Circle>c] => <dyn, None>Ok(d.invert_in(c.O, c.r))
+            ),
             // Object creation
             entry!(
                 "l";
@@ -103,6 +142,19 @@ lazy_static! {
             entry!(
                 "circ";
                 [<Circle>c] => <Point, Number>Ok((c.O, c.r))
-            )
+            ),
+            // Triangle centers
+            entry!("cO"; [<Trig>t] => <Point, None>circum(t)),
+            entry!("cI"; [<Trig>t] => <Point, None>incenter(t)),
+            entry!("cJ"; [<Trig>t] => <Point, None>excenter(t)),
+            entry!("cG"; [<Trig>t] => <Point, None>Ok(centroid(t))),
+            entry!("cH"; [<Trig>t] => <Point, None>ortho(t)),
+            entry!("cK"; [<Trig>t] => <Point, None>symmedian(t)),
+            entry!("cGe"; [<Trig>t] => <Point, None>gergonne(t)),
+            entry!(
+                "bary";
+                [<Trig>t, <Number>x, <Number>y, <Number>z] => <Point, None>from_barycentric(t, (x, y, z))
+            ),
+            entry!("isog-conj"; [<Trig>t, <Point>p] => <Point, None>isogonal_conjugate(t, p)),
         ]);
 }

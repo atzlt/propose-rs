@@ -95,7 +95,7 @@ impl InterpreterState {
         }
     }
     #[inline]
-    pub fn clear(&mut self) -> () {
+    pub fn clear(&mut self) {
         self.objects.clear();
         self.layer.0.clear();
         self.config.clone_from(&DEFAULT_CONFIG);

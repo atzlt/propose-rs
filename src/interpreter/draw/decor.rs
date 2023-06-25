@@ -23,9 +23,9 @@ impl DecorConfig {
             if let ConfigValue::String(fill) = dobj.get_unchecked("decorfill");
             then {
                 Ok(DecorConfig {
-                    pos: dobj.get_position(*loc).ok_or(DecorError::ObjNotSupported)?,
+                    pos: dobj.get_position(*loc),
                     size: *size,
-                    angle: dobj.get_tan_angle(*loc).ok_or(DecorError::ObjNotSupported)?,
+                    angle: dobj.get_tan_angle(*loc),
                     width: *width,
                     color: color.clone(),
                     fill: fill.clone(),
