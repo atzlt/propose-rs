@@ -1,0 +1,11 @@
+---
+source: src/interpreter/tests/parser.rs
+expression: parse(string).unwrap()
+---
+- Decl:
+    - Direct: d
+    - Object:
+        CircOr:
+          - O2
+          - Number: 4
+

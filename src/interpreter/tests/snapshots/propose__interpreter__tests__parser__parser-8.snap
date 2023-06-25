@@ -1,0 +1,40 @@
+---
+source: src/interpreter/tests/parser.rs
+expression: parse(string).unwrap()
+---
+- Draw:
+    - obj:
+        Name: c
+      config: ~
+    - obj:
+        Name: d
+      config: ~
+    - obj:
+        Name: A
+      config: ~
+    - obj:
+        Name: B
+      config: ~
+    - obj:
+        Name: S
+      config: ~
+    - obj:
+        Name: T
+      config: ~
+    - obj:
+        Line2P:
+          - S
+          - T
+      config: ~
+    - obj:
+        Name: P
+      config: ~
+    - obj:
+        Name: Q
+      config: ~
+    - obj:
+        Line2P:
+          - P
+          - Q
+      config: ~
+

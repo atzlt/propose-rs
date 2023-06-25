@@ -1,0 +1,16 @@
+---
+source: src/interpreter/tests/parser.rs
+expression: parse(string).unwrap()
+---
+- Config:
+    dotsize:
+      Number: 7
+    dotstroke:
+      String: red
+    dotwidth:
+      Number: 1
+    height:
+      Number: 10
+    width:
+      Number: 14
+

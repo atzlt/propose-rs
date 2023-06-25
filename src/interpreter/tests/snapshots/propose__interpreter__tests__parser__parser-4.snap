@@ -1,0 +1,13 @@
+---
+source: src/interpreter/tests/parser.rs
+expression: parse(string).unwrap()
+---
+- Decl:
+    - Destruct:
+        - A
+        - B
+    - Expr:
+        - i
+        - - Name: c
+          - Name: d
+

@@ -1,0 +1,14 @@
+---
+source: src/interpreter/tests/parser.rs
+expression: parse(string).unwrap()
+---
+- Decl:
+    - Direct: l
+    - Expr:
+        - l
+        - - Numeric:
+              Number: 0.1
+          - Numeric:
+              Number: 1
+          - Name: A
+

@@ -1,0 +1,90 @@
+---
+source: src/interpreter/tests/interpreter.rs
+expression: interpreter
+input_file: test_input/harmonic.prs
+---
+objects:
+  A:
+    Point:
+      x: 2.298133329356934
+      y: -1.9283628290596178
+  B:
+    Point:
+      x: 1.9283628290596182
+      y: 2.298133329356934
+  C:
+    Point:
+      x: -2.298133329356934
+      y: -1.9283628290596178
+  D:
+    Point:
+      x: 0.47190052918512476
+      y: -2.9626525092482243
+  O:
+    Point:
+      x: 0
+      y: 0
+  S:
+    Point:
+      x: 6.965304809938172
+      y: -1.928362829059619
+  T:
+    Point:
+      x: -0
+      y: -4.667171480581237
+  c:
+    Circle:
+      O:
+        x: 0
+        y: 0
+      r: 3
+  k:
+    Line:
+      a: 0.47190052918512476
+      b: -2.9626525092482243
+      c: -9.000000000000002
+  l:
+    Line:
+      a: 1.9283628290596182
+      b: 2.298133329356934
+      c: -9.000000000000002
+config:
+  angle:
+    Number: 0
+  color:
+    String: "#000000"
+  decorcolor:
+    String: "#000000"
+  decorfill:
+    String: "#00000000"
+  decorsize:
+    Number: 8
+  decorwidth:
+    Number: 1.5
+  dist:
+    Number: 10
+  dotfill:
+    String: "#000000"
+  dotsize:
+    Number: 2.5
+  dotstroke:
+    String: "#000000"
+  dotwidth:
+    Number: 0
+  fill:
+    String: "#00000000"
+  font:
+    String: serif
+  height:
+    Number: 10
+  labelsize:
+    Number: 15
+  linewidth:
+    Number: 1.5
+  loc:
+    Number: 0.5
+  min-x:
+    Number: -4
+  width:
+    Number: 13
+

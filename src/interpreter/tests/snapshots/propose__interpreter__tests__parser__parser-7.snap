@@ -1,0 +1,14 @@
+---
+source: src/interpreter/tests/parser.rs
+expression: parse(string).unwrap()
+---
+- Decl:
+    - Direct: k
+    - Expr:
+        - l
+        - - Numeric:
+              Number: -0.2
+          - Numeric:
+              Number: 1
+          - Name: B
+

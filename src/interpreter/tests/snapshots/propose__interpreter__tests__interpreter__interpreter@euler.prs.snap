@@ -1,0 +1,68 @@
+---
+source: src/interpreter/tests/interpreter.rs
+expression: interpreter
+input_file: test_input/euler.prs
+---
+objects:
+  A:
+    Point:
+      x: -3
+      y: -1
+  B:
+    Point:
+      x: 3
+      y: -1
+  C:
+    Point:
+      x: 1
+      y: 3
+  G:
+    Point:
+      x: 0.3333333333333333
+      y: 0.3333333333333333
+  H:
+    Point:
+      x: 1
+      y: 1
+  O:
+    Point:
+      x: 0
+      y: 0
+config:
+  angle:
+    Number: 0
+  color:
+    String: "#000000"
+  decorcolor:
+    String: "#000000"
+  decorfill:
+    String: "#00000000"
+  decorsize:
+    Number: 8
+  decorwidth:
+    Number: 1.5
+  dist:
+    Number: 10
+  dotfill:
+    String: "#000000"
+  dotsize:
+    Number: 2.5
+  dotstroke:
+    String: "#000000"
+  dotwidth:
+    Number: 0
+  fill:
+    String: "#00000000"
+  font:
+    String: serif
+  height:
+    Number: 7
+  labelsize:
+    Number: 15
+  linewidth:
+    Number: 1.5
+  loc:
+    Number: 0.5
+  width:
+    Number: 7
+

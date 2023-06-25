@@ -1,0 +1,98 @@
+---
+source: src/interpreter/tests/interpreter.rs
+expression: interpreter
+input_file: test_input/reim.prs
+---
+objects:
+  A:
+    Point:
+      x: -1.2
+      y: 2.4
+  B:
+    Point:
+      x: -1.2
+      y: -2.4
+  O1:
+    Point:
+      x: -3
+      y: 0
+  O2:
+    Point:
+      x: 2
+      y: 0
+  P:
+    Point:
+      x: -3.7384615384615416
+      y: -2.9076923076923085
+  Q:
+    Point:
+      x: 5.876923076923075
+      y: -0.9846153846153851
+  S:
+    Point:
+      x: -4.289108910891093
+      y: 2.708910891089109
+  T:
+    Point:
+      x: 5.611881188118817
+      y: 1.7188118811881181
+  c:
+    Circle:
+      O:
+        x: -3
+        y: 0
+      r: 3
+  d:
+    Circle:
+      O:
+        x: 2
+        y: 0
+      r: 4
+  k:
+    Line:
+      a: -0.2
+      b: 1
+      c: 2.16
+  l:
+    Line:
+      a: 0.1
+      b: 1
+      c: -2.28
+config:
+  angle:
+    Number: 0
+  color:
+    String: red
+  decorcolor:
+    String: blue
+  decorfill:
+    String: "#00000000"
+  decorsize:
+    Number: 8
+  decorwidth:
+    Number: 1.5
+  dist:
+    Number: 10
+  dotfill:
+    String: "#000000"
+  dotsize:
+    Number: 7
+  dotstroke:
+    String: "#000000"
+  dotwidth:
+    Number: 0
+  fill:
+    String: "#00000000"
+  font:
+    String: serif
+  height:
+    Number: 10
+  labelsize:
+    Number: 15
+  linewidth:
+    Number: 1.5
+  loc:
+    Number: 0.5
+  width:
+    Number: 14
+

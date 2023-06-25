@@ -1,0 +1,80 @@
+---
+source: src/interpreter/tests/interpreter.rs
+expression: interpreter
+input_file: test_input/arc.prs
+---
+objects:
+  A:
+    Point:
+      x: -1
+      y: 1
+  B:
+    Point:
+      x: 0
+      y: 1
+  C:
+    Point:
+      x: 1
+      y: 1
+  D:
+    Point:
+      x: -1
+      y: 0
+  E:
+    Point:
+      x: 0
+      y: 0
+  F:
+    Point:
+      x: 1
+      y: 0
+  G:
+    Point:
+      x: -1
+      y: -1
+  H:
+    Point:
+      x: 0
+      y: -1
+  I:
+    Point:
+      x: 1
+      y: -1
+config:
+  angle:
+    Number: 0
+  color:
+    String: green
+  decorcolor:
+    String: "#000000"
+  decorfill:
+    String: "#00000000"
+  decorsize:
+    Number: 8
+  decorwidth:
+    Number: 1.5
+  dist:
+    Number: 10
+  dotfill:
+    String: "#000000"
+  dotsize:
+    Number: 2.5
+  dotstroke:
+    String: "#000000"
+  dotwidth:
+    Number: 0
+  fill:
+    String: "#00000000"
+  font:
+    String: serif
+  height:
+    Number: 10
+  labelsize:
+    Number: 15
+  linewidth:
+    Number: 1.5
+  loc:
+    Number: 0.5
+  width:
+    Number: 10
+

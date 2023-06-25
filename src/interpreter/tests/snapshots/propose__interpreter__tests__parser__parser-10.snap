@@ -1,0 +1,10 @@
+---
+source: src/interpreter/tests/parser.rs
+expression: parse(string).unwrap()
+---
+- Decl:
+    - Direct: A
+    - PolarCoord:
+        - Number: 3
+        - Number: -0.6981317007977318
+

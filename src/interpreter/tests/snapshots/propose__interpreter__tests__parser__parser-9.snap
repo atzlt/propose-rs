@@ -1,0 +1,18 @@
+---
+source: src/interpreter/tests/parser.rs
+expression: parse(string).unwrap()
+---
+- Decor:
+    - obj:
+        Line2P:
+          - S
+          - P
+      decor: ">"
+      config: ~
+    - obj:
+        Line2P:
+          - T
+          - Q
+      decor: ">"
+      config: ~
+

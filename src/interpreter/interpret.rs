@@ -15,13 +15,14 @@ use metric_rs::{
     },
     objects::{Circle, Line, Point},
 };
+use serde::Serialize;
 use std::path::Path;
 use std::{collections::HashMap, fs};
 
 type Result<T> = std::result::Result<T, InterpretError>;
 
 /// Types of layers.
-#[derive(Debug, PartialEq, Eq, Hash)]
+#[derive(Debug, PartialEq, Eq, Hash, Serialize)]
 pub enum LayerType {
     Dots,
     Lines,
@@ -62,9 +63,10 @@ pub enum InterpretError {
 }
 
 /// Represents the state of an interpreter.
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct InterpreterState {
     objects: HashMap<String, GObject>,
+    #[serde(skip)]
     layer: Layer,
     config: Config,
 }

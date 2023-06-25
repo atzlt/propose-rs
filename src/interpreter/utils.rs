@@ -1,8 +1,9 @@
 use std::fmt::Display;
 use metric_rs::{calc::exception::CalcException, objects::{Point, Circle, Line}};
+use serde::Serialize;
 use super::{structs::{Segment, Arc}, interpret::InterpretError};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub enum ConfigValue {
     Number(f64),
     String(String),
@@ -50,7 +51,7 @@ impl From<&str> for ConfigValue {
 }
 
 /// Objects related to calculation.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Serialize)]
 pub enum GObject {
     Point(Point),
     Line(Line),

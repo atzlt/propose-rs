@@ -1,0 +1,29 @@
+---
+source: src/interpreter/tests/parser.rs
+expression: parse(string).unwrap()
+---
+- Draw:
+    - obj:
+        Name: c
+      config:
+        angle:
+          Number: 2.792526803190927
+        label:
+          String: c
+        loc:
+          Number: 2.792526803190927
+    - obj:
+        Name: A
+      config:
+        angle:
+          Number: -1.0471975511965976
+        label:
+          String: A
+    - obj:
+        Name: B
+      config:
+        angle:
+          Number: 0.8726646259971648
+        label:
+          String: B
+

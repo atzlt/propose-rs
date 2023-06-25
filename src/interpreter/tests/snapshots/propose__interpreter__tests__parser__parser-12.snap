@@ -1,0 +1,25 @@
+---
+source: src/interpreter/tests/parser.rs
+expression: parse(string).unwrap()
+---
+- Draw:
+    - obj:
+        Line2P:
+          - C
+          - S
+      config:
+        color:
+          String: blue
+        dash:
+          Number: 5
+    - obj:
+        Line2P:
+          - B
+          - S
+      config: ~
+    - obj:
+        Line2P:
+          - D
+          - S
+      config: ~
+

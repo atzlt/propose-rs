@@ -1,0 +1,10 @@
+---
+source: src/interpreter/tests/parser.rs
+expression: parse(string).unwrap()
+---
+- Decl:
+    - Direct: O2
+    - OrthoCoord:
+        - Number: 2
+        - Number: 0
+
