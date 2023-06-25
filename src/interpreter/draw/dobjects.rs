@@ -125,7 +125,7 @@ impl Display for StyledDObject<'_> {
             DObject::Polygon(poly) => {
                 let pts = poly
                     .iter()
-                    .map(|p| format!("{},{}", p.x * CM, p.y * CM))
+                    .map(|p| format!("{},{}", p.x * CM, -p.y * CM))
                     .join(" ");
                 write!(
                     f,

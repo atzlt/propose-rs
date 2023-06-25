@@ -101,13 +101,17 @@ impl InterpreterState {
         self.config.clone_from(&DEFAULT_CONFIG);
     }
     #[inline]
-    pub fn interpret(&mut self, source: &str) -> Result<()> {
+    pub fn interpret(&mut self, source: &str) -> std::result::Result<(), (usize, InterpretError)> {
         let input = parse(source);
         match input {
-            Err(e) => Err(InterpretError::ParseError(e.to_string())),
+            Err(e) => Err((0, InterpretError::ParseError(e.to_string()))),
             Ok(input) => {
+                let mut ln = 0;
                 for line in input {
-                    self._interpret(line)?;
+                    ln += 1;
+                    if let Err(e) = self._interpret(line) {
+                        return Err((ln, e));
+                    }
                 }
                 Ok(())
             }
@@ -240,13 +244,13 @@ impl InterpreterState {
             "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{}\" height=\"{}\" viewBox=\"{} {} {} {}\">\n{}\n{}\n{}\n{}\n{}\n</svg>\n",
             width,
             height,
-            if let Some(ConfigValue::Number(min_x)) = self.config.get("minX") {
-                *min_x
+            if let Some(ConfigValue::Number(min_x)) = self.config.get("min-x") {
+                *min_x * CM
             } else {
                 -width / 2.0
             },
-            if let Some(ConfigValue::Number(min_y)) = self.config.get("minY") {
-                *min_y
+            if let Some(ConfigValue::Number(min_y)) = self.config.get("min-y") {
+                -*min_y * CM
             } else {
                 -height / 2.0
             },

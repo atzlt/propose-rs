@@ -43,7 +43,7 @@ decoration = @{ punc_alpha+ }
 config_line  =  { "config" ~ configs }
 configs      =  { (config ~ ",")* ~ config }
 config       =  { config_name ~ "=" ~ config_value }
-config_name  = @{ ASCII_ALPHA_LOWER+ }
+config_name  = @{ (ASCII_ALPHA_LOWER | "-")+ }
 config_value =  { rich_number | boolean | string }
 
 save_file = { "save" ~ raw_string }
