@@ -550,6 +550,7 @@ dependencies = [
 [[package]]
 name = "metric-rs"
 version = "0.1.2"
+source = "git+https://github.com/atzlt/metric-rs.git#26025f7d90e95a0f1d65e7554db7ba172945b3f8"
 dependencies = [
  "serde",
 ]
