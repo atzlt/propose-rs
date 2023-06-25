@@ -4,22 +4,26 @@ expression: parse(string).unwrap()
 ---
 - Draw:
     - obj:
-        Line2P:
-          - C
-          - S
+        Name: c
       config:
-        color:
-          String: blue
-        dash:
-          Number: 5
+        angle:
+          Number: 2.792526803190927
+        label:
+          String: c
+        loc:
+          Number: 2.792526803190927
     - obj:
-        Line2P:
-          - B
-          - S
-      config: ~
+        Name: A
+      config:
+        angle:
+          Number: -1.0471975511965976
+        label:
+          String: A
     - obj:
-        Line2P:
-          - D
-          - S
-      config: ~
+        Name: B
+      config:
+        angle:
+          Number: 0.8726646259971648
+        label:
+          String: B
 

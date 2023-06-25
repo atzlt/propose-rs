@@ -1,14 +1,17 @@
 use crate::interpreter::utils::ConfigValue;
+#[cfg(test)]
 use serde::Serialize;
 use std::collections::HashMap;
 
-#[derive(Debug, Serialize)]
+#[cfg_attr(test, derive(Serialize))]
+#[derive(Debug)]
 pub enum Linear {
     Line2P(String, String),
     Name(String),
 }
 
-#[derive(Debug, Serialize)]
+#[cfg_attr(test, derive(Serialize))]
+#[derive(Debug)]
 pub enum Numeric {
     Distance2P(String, String),
     DistancePL(String, Linear),
@@ -19,7 +22,8 @@ pub enum Numeric {
     Name(String),
 }
 
-#[derive(Debug, Serialize)]
+#[cfg_attr(test, derive(Serialize))]
+#[derive(Debug)]
 pub enum Object {
     Line2P(String, String),
     Circ3P(String, String, String),
@@ -36,7 +40,8 @@ pub enum Object {
     Eval(String),
 }
 
-#[derive(Debug, Serialize)]
+#[cfg_attr(test, derive(Serialize))]
+#[derive(Debug)]
 pub enum DeclRight {
     OrthoCoord(Box<Numeric>, Box<Numeric>),
     PolarCoord(Box<Numeric>, Box<Numeric>),
@@ -44,24 +49,28 @@ pub enum DeclRight {
     Object(Box<Object>),
 }
 
-#[derive(Debug, Serialize)]
+#[cfg_attr(test, derive(Serialize))]
+#[derive(Debug)]
 pub enum DeclLeft {
     Direct(String),
     Destruct(String, String),
 }
 
-#[derive(Debug, Serialize)]
+#[cfg_attr(test, derive(Serialize))]
+#[derive(Debug)]
 pub struct Decl(pub DeclLeft, pub DeclRight);
 
 pub type Config = HashMap<String, ConfigValue>;
 
-#[derive(Debug, Serialize)]
+#[cfg_attr(test, derive(Serialize))]
+#[derive(Debug)]
 pub struct StyledObject {
     pub obj: Object,
     pub config: Option<Config>,
 }
 
-#[derive(Debug, Serialize)]
+#[cfg_attr(test, derive(Serialize))]
+#[derive(Debug)]
 pub struct DecorObject {
     pub obj: Object,
     pub decor: String,
@@ -71,7 +80,8 @@ pub struct DecorObject {
 pub type Draw = Vec<StyledObject>;
 pub type Decor = Vec<DecorObject>;
 
-#[derive(Debug, Serialize)]
+#[cfg_attr(test, derive(Serialize))]
+#[derive(Debug)]
 pub enum FileLine {
     Config(Config),
     Draw(Draw),

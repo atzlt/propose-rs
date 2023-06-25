@@ -2,9 +2,17 @@
 source: src/interpreter/tests/parser.rs
 expression: parse(string).unwrap()
 ---
-- Decl:
-    - Direct: A
-    - PolarCoord:
-        - Number: 3
-        - Number: -0.6981317007977318
+- Decor:
+    - obj:
+        Line2P:
+          - S
+          - P
+      decor: "||"
+      config: ~
+    - obj:
+        Line2P:
+          - T
+          - Q
+      decor: "|"
+      config: ~
 

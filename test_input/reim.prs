@@ -13,8 +13,6 @@ P, _ = i k, c, B;
 Q, _ = i k, d, B;
 
 draw c, d, A, B, S, T, ST, P, Q, PQ;
-save reim-intermediate.svg;
-
 config color="red", decorcolor="blue";
 draw SP, TQ;
 decor PS: >, QT: >;

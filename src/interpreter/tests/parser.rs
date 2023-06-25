@@ -1,6 +1,6 @@
 use crate::interpreter::parser::parse;
 
-const TEST_STR: [&str; 13] = [
+const TEST_STR: [&str; 14] = [
     "config width=14, height=10, dotsize=7, dotstroke=\"red\", dotwidth=1;",
     "O2 = (2, 0);",
     "d = @(O2, 4);",
@@ -10,6 +10,7 @@ const TEST_STR: [&str; 13] = [
     "k = l -0.2, 1, B;",
     "draw c, d, A, B, S, T, ST, P, Q, PQ;",
     "decor SP: >, TQ: >;",
+    "decor SP: ||, TQ: |;",
     "A = (3 : -40deg);",
     "draw c[label=\"c\",loc=160deg,angle=160deg], A[label=\"A\",angle=-60deg], B[label=\"B\",angle=50deg];",
     "draw CS[color=\"blue\",dash=5], BS, DS;",
