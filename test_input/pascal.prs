@@ -1,0 +1,13 @@
+O = (0, 0);
+r = 4;
+c = @(O, r);
+A = (r : 40deg);
+B = (r : 70deg);
+C = (r : 120deg);
+D = (r : -135);
+E = (r : -100deg);
+F = (r : -20deg);
+P = i AE, BF;
+Q = i AD, CF;
+R = i BD, CE;
+draw c, A, B, C, D, E, F, P, Q, R, AE, BF, AD, CF, BD, CE, PR[color="grey", dash=5];

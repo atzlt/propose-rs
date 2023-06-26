@@ -47,6 +47,11 @@ impl StyledDObject<'_> {
 
 impl Display for StyledDObject<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let dash = if let Some(val) = self.get("dash") {
+            format!(" stroke-dasharray=\"{}\"", val)
+        } else {
+            String::new()
+        };
         match &self.obj {
             DObject::Segment(seg) => {
                 let Segment { from: a, to: b } = seg;
@@ -56,12 +61,7 @@ impl Display for StyledDObject<'_> {
                     b,
                     self.get_unchecked("color"),
                     self.get_unchecked("linewidth"),
-                    if_chain! {
-                        if let Some(ConfigValue::String(s)) = self.get("dash");
-                        if !s.is_empty();
-                        then { format!(" stroke-dasharray={}", s) }
-                        else { String::new() }
-                    }
+                    dash
                 )
             }
             DObject::Circle(circ) => {
@@ -72,12 +72,7 @@ impl Display for StyledDObject<'_> {
                     self.get_unchecked("color"),
                     self.get_unchecked("fill"),
                     self.get_unchecked("linewidth"),
-                    if_chain! {
-                        if let Some(ConfigValue::String(s)) = self.get("dash");
-                        if !s.is_empty();
-                        then { format!(" stroke-dasharray={}", s) }
-                        else { String::new() }
-                    }
+                    dash
                 )
             }
             DObject::Point(p) => {
@@ -114,12 +109,7 @@ impl Display for StyledDObject<'_> {
                     -to.y * CM,
                     self.get_unchecked("color"),
                     self.get_unchecked("linewidth"),
-                    if_chain! {
-                        if let Some(ConfigValue::String(s)) = self.get("dash");
-                        if !s.is_empty();
-                        then { format!(" stroke-dasharray={}", s) }
-                        else { String::new() }
-                    }
+                    dash
                 )
             }
             DObject::Polygon(poly) => {

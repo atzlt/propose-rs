@@ -1,0 +1,71 @@
+---
+source: src/interpreter/tests/parser.rs
+expression: parse(&input).unwrap()
+input_file: test_input/euler.prs
+---
+[
+  Config({
+    "height": Number(7.0),
+    "width": Number(7.0),
+  }),
+  Decl(Decl(Direct("A"), OrthoCoord(Number(-3.0), Number(-1.0)))),
+  Decl(Decl(Direct("B"), OrthoCoord(Number(3.0), Number(-1.0)))),
+  Decl(Decl(Direct("C"), OrthoCoord(Number(1.0), Number(3.0)))),
+  Decl(Decl(Direct("O"), Expr("cO", [
+    Triangle("A", "B", "C"),
+  ]))),
+  Decl(Decl(Direct("H"), Expr("cH", [
+    Triangle("A", "B", "C"),
+  ]))),
+  Decl(Decl(Direct("G"), Expr("cG", [
+    Triangle("A", "B", "C"),
+  ]))),
+  Draw([
+    StyledObject(
+      obj: Name("A"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Name("B"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Name("C"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Line2P("A", "B"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Line2P("B", "C"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Line2P("C", "A"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Name("O"),
+      config: None,
+    ),
+    StyledObject(
+      obj: CircOA("O", "A"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Name("H"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Name("G"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Line2P("O", "H"),
+      config: Some({
+        "color": String("red"),
+      }),
+    ),
+  ]),
+]

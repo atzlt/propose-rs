@@ -346,9 +346,9 @@ impl ProposeParser {
     }
     #[inline]
     fn configs(input: Node) -> Result<Config> {
-        let items = input.into_children().map(Self::config);
+        let items = input.into_children().flat_map(Self::config);
         let mut map = Config::new();
-        for (key, val) in items.flatten() {
+        for (key, val) in items {
             map.insert(key, val);
         }
         Ok(map)

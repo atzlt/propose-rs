@@ -7,7 +7,7 @@ fn test_interpreter() {
             let input = std::fs::read_to_string(path).unwrap();
             let mut interpreter = InterpreterState::new();
             interpreter.interpret(&input).unwrap();
-            insta::assert_yaml_snapshot!(interpreter);
+            insta::assert_ron_snapshot!(interpreter);
         })
     })
 }

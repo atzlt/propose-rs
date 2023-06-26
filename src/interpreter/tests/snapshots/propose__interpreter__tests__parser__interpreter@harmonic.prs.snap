@@ -1,0 +1,158 @@
+---
+source: src/interpreter/tests/parser.rs
+expression: parse(&input).unwrap()
+input_file: test_input/harmonic.prs
+---
+[
+  Config({
+    "height": Number(10.0),
+    "min-x": Number(-4.0),
+    "width": Number(13.0),
+  }),
+  Decl(Decl(Direct("O"), OrthoCoord(Number(0.0), Number(0.0)))),
+  Decl(Decl(Direct("c"), Object(CircOr("O", Number(3.0))))),
+  Decl(Decl(Direct("A"), PolarCoord(Number(3.0), Number(-0.6981317007977318)))),
+  Decl(Decl(Direct("B"), PolarCoord(Number(3.0), Number(0.8726646259971648)))),
+  Decl(Decl(Direct("C"), PolarCoord(Number(3.0), Number(3.839724354387525)))),
+  Decl(Decl(Destruct("l", "_"), Expr("tan", [
+    Name("A"),
+    Name("c"),
+  ]))),
+  Decl(Decl(Destruct("k", "_"), Expr("tan", [
+    Name("C"),
+    Name("c"),
+  ]))),
+  Decl(Decl(Direct("T"), Expr("i", [
+    Name("l"),
+    Name("k"),
+  ]))),
+  Decl(Decl(Destruct("D", "_"), Expr("i", [
+    Line2P("T", "B"),
+    Name("c"),
+    Name("B"),
+  ]))),
+  Decl(Decl(Destruct("l", "_"), Expr("tan", [
+    Name("B"),
+    Name("c"),
+  ]))),
+  Decl(Decl(Destruct("k", "_"), Expr("tan", [
+    Name("D"),
+    Name("c"),
+  ]))),
+  Decl(Decl(Direct("S"), Expr("i", [
+    Name("l"),
+    Name("k"),
+  ]))),
+  Draw([
+    StyledObject(
+      obj: Name("c"),
+      config: Some({
+        "angle": Number(2.792526803190927),
+        "label": String("c"),
+        "loc": Number(2.792526803190927),
+      }),
+    ),
+    StyledObject(
+      obj: Name("A"),
+      config: Some({
+        "angle": Number(-1.0471975511965976),
+        "label": String("A"),
+      }),
+    ),
+    StyledObject(
+      obj: Name("B"),
+      config: Some({
+        "angle": Number(0.8726646259971648),
+        "label": String("B"),
+      }),
+    ),
+  ]),
+  Draw([
+    StyledObject(
+      obj: Name("C"),
+      config: Some({
+        "angle": Number(3.839724354387525),
+        "dist": Number(13.0),
+        "label": String("C"),
+      }),
+    ),
+  ]),
+  Draw([
+    StyledObject(
+      obj: Name("D"),
+      config: Some({
+        "angle": Number(-1.1344640137963142),
+        "dist": Number(13.0),
+        "label": String("D"),
+      }),
+    ),
+  ]),
+  Draw([
+    StyledObject(
+      obj: Line2P("A", "B"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Line2P("B", "C"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Line2P("C", "D"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Line2P("D", "A"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Name("T"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Line2P("A", "T"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Line2P("C", "T"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Line2P("B", "T"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Name("S"),
+      config: None,
+    ),
+  ]),
+  Draw([
+    StyledObject(
+      obj: Line2P("C", "S"),
+      config: Some({
+        "color": String("blue"),
+        "dash": Number(5.0),
+      }),
+    ),
+    StyledObject(
+      obj: Line2P("B", "S"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Line2P("D", "S"),
+      config: None,
+    ),
+  ]),
+  Draw([
+    StyledObject(
+      obj: Polygon([
+        "A",
+        "B",
+        "C",
+        "D",
+      ]),
+      config: Some({
+        "fill": String("#ff000033"),
+      }),
+    ),
+  ]),
+]

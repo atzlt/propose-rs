@@ -1,0 +1,118 @@
+---
+source: src/interpreter/tests/parser.rs
+expression: parse(&input).unwrap()
+input_file: test_input/reim.prs
+---
+[
+  Config({
+    "dotsize": Number(7.0),
+    "height": Number(10.0),
+    "width": Number(14.0),
+  }),
+  Decl(Decl(Direct("O1"), OrthoCoord(Number(-3.0), Number(0.0)))),
+  Decl(Decl(Direct("O2"), OrthoCoord(Number(2.0), Number(0.0)))),
+  Decl(Decl(Direct("c"), Object(CircOr("O1", Number(3.0))))),
+  Decl(Decl(Direct("d"), Object(CircOr("O2", Number(4.0))))),
+  Decl(Decl(Destruct("A", "B"), Expr("i", [
+    Name("c"),
+    Name("d"),
+  ]))),
+  Decl(Decl(Direct("l"), Expr("l", [
+    Numeric(Number(0.1)),
+    Numeric(Number(1.0)),
+    Name("A"),
+  ]))),
+  Decl(Decl(Destruct("S", "_"), Expr("i", [
+    Name("l"),
+    Name("c"),
+    Name("A"),
+  ]))),
+  Decl(Decl(Destruct("T", "_"), Expr("i", [
+    Name("l"),
+    Name("d"),
+    Name("A"),
+  ]))),
+  Decl(Decl(Direct("k"), Expr("l", [
+    Numeric(Number(-0.2)),
+    Numeric(Number(1.0)),
+    Name("B"),
+  ]))),
+  Decl(Decl(Destruct("P", "_"), Expr("i", [
+    Name("k"),
+    Name("c"),
+    Name("B"),
+  ]))),
+  Decl(Decl(Destruct("Q", "_"), Expr("i", [
+    Name("k"),
+    Name("d"),
+    Name("B"),
+  ]))),
+  Draw([
+    StyledObject(
+      obj: Name("c"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Name("d"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Name("A"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Name("B"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Name("S"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Name("T"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Line2P("S", "T"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Name("P"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Name("Q"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Line2P("P", "Q"),
+      config: None,
+    ),
+  ]),
+  Config({
+    "color": String("red"),
+    "decorcolor": String("blue"),
+  }),
+  Draw([
+    StyledObject(
+      obj: Line2P("S", "P"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Line2P("T", "Q"),
+      config: None,
+    ),
+  ]),
+  Decor([
+    DecorObject(
+      obj: Line2P("P", "S"),
+      decor: ">",
+      config: None,
+    ),
+    DecorObject(
+      obj: Line2P("Q", "T"),
+      decor: ">",
+      config: None,
+    ),
+  ]),
+]

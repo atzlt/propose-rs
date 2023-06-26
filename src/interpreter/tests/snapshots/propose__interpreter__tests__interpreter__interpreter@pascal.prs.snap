@@ -1,50 +1,62 @@
 ---
 source: src/interpreter/tests/interpreter.rs
 expression: interpreter
-input_file: test_input/arc.prs
+input_file: test_input/pascal.prs
 ---
 InterpreterState(
   objects: {
     "A": Point(Point(
-      x: -1.0,
-      y: 1.0,
+      x: 3.064177772475912,
+      y: 2.571150438746157,
     )),
     "B": Point(Point(
-      x: 0.0,
-      y: 1.0,
+      x: 1.3680805733026753,
+      y: 3.7587704831436333,
     )),
     "C": Point(Point(
-      x: 1.0,
-      y: 1.0,
+      x: -1.9999999999999991,
+      y: 3.464101615137755,
     )),
     "D": Point(Point(
-      x: -1.0,
-      y: 0.0,
+      x: -3.9843513405647397,
+      y: -0.35347474441600574,
     )),
     "E": Point(Point(
-      x: 0.0,
-      y: 0.0,
+      x: -0.6945927106677212,
+      y: -3.939231012048832,
     )),
     "F": Point(Point(
-      x: 1.0,
+      x: 3.7587704831436337,
+      y: -1.3680805733026749,
+    )),
+    "O": Point(Point(
+      x: 0.0,
       y: 0.0,
     )),
-    "G": Point(Point(
-      x: -1.0,
-      y: -1.0,
+    "P": Point(Point(
+      x: 2.4322583457785876,
+      y: 1.476633885416594,
     )),
-    "H": Point(Point(
-      x: 0.0,
-      y: -1.0,
+    "Q": Point(Point(
+      x: 0.3876808093092612,
+      y: 1.4605995286772844,
     )),
-    "I": Point(Point(
-      x: 1.0,
-      y: -1.0,
+    "R": Point(Point(
+      x: -1.6439191821930481,
+      y: 1.4446669467945856,
     )),
+    "c": Circle(Circle(
+      O: Point(
+        x: 0.0,
+        y: 0.0,
+      ),
+      r: 4.0,
+    )),
+    "r": Number(4.0),
   },
   config: {
     "angle": Number(0.0),
-    "color": String("green"),
+    "color": String("#000000"),
     "decorcolor": String("#000000"),
     "decorfill": String("#00000000"),
     "decorsize": Number(8.0),

@@ -1,0 +1,86 @@
+---
+source: src/interpreter/tests/parser.rs
+expression: parse(&input).unwrap()
+input_file: test_input/arc.prs
+---
+[
+  Decl(Decl(Direct("A"), OrthoCoord(Number(-1.0), Number(1.0)))),
+  Decl(Decl(Direct("B"), OrthoCoord(Number(0.0), Number(1.0)))),
+  Decl(Decl(Direct("C"), OrthoCoord(Number(1.0), Number(1.0)))),
+  Decl(Decl(Direct("D"), OrthoCoord(Number(-1.0), Number(0.0)))),
+  Decl(Decl(Direct("E"), OrthoCoord(Number(0.0), Number(0.0)))),
+  Decl(Decl(Direct("F"), OrthoCoord(Number(1.0), Number(0.0)))),
+  Decl(Decl(Direct("G"), OrthoCoord(Number(-1.0), Number(-1.0)))),
+  Decl(Decl(Direct("H"), OrthoCoord(Number(0.0), Number(-1.0)))),
+  Decl(Decl(Direct("I"), OrthoCoord(Number(1.0), Number(-1.0)))),
+  Draw([
+    StyledObject(
+      obj: Arc("A", "E", "G"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Arc("G", "I", "C"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Arc("C", "E", "A"),
+      config: None,
+    ),
+  ]),
+  Config({
+    "color": String("blue"),
+  }),
+  Draw([
+    StyledObject(
+      obj: Arc("B", "E", "D"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Arc("D", "G", "H"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Arc("H", "E", "F"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Arc("F", "C", "B"),
+      config: None,
+    ),
+  ]),
+  Config({
+    "color": String("red"),
+  }),
+  Draw([
+    StyledObject(
+      obj: Arc("B", "I", "D"),
+      config: Some({
+        "angle": Number(-0.7853981633974483),
+        "dist": Number(10.0),
+        "label": String("arc"),
+        "loc": Number(0.5),
+      }),
+    ),
+  ]),
+  Config({
+    "color": String("green"),
+  }),
+  Draw([
+    StyledObject(
+      obj: Arc("B", "A", "D"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Arc("D", "E", "H"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Arc("H", "I", "F"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Arc("F", "E", "B"),
+      config: None,
+    ),
+  ]),
+]

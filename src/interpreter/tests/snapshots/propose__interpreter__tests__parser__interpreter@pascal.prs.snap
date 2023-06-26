@@ -1,0 +1,101 @@
+---
+source: src/interpreter/tests/parser.rs
+expression: parse(&input).unwrap()
+input_file: test_input/pascal.prs
+---
+[
+  Decl(Decl(Direct("O"), OrthoCoord(Number(0.0), Number(0.0)))),
+  Decl(Decl(Direct("r"), Object(Numeric(Number(4.0))))),
+  Decl(Decl(Direct("c"), Object(CircOr("O", Name("r"))))),
+  Decl(Decl(Direct("A"), PolarCoord(Name("r"), Number(0.6981317007977318)))),
+  Decl(Decl(Direct("B"), PolarCoord(Name("r"), Number(1.2217304763960306)))),
+  Decl(Decl(Direct("C"), PolarCoord(Name("r"), Number(2.0943951023931953)))),
+  Decl(Decl(Direct("D"), PolarCoord(Name("r"), Number(-135.0)))),
+  Decl(Decl(Direct("E"), PolarCoord(Name("r"), Number(-1.7453292519943295)))),
+  Decl(Decl(Direct("F"), PolarCoord(Name("r"), Number(-0.3490658503988659)))),
+  Decl(Decl(Direct("P"), Expr("i", [
+    Line2P("A", "E"),
+    Line2P("B", "F"),
+  ]))),
+  Decl(Decl(Direct("Q"), Expr("i", [
+    Line2P("A", "D"),
+    Line2P("C", "F"),
+  ]))),
+  Decl(Decl(Direct("R"), Expr("i", [
+    Line2P("B", "D"),
+    Line2P("C", "E"),
+  ]))),
+  Draw([
+    StyledObject(
+      obj: Name("c"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Name("A"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Name("B"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Name("C"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Name("D"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Name("E"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Name("F"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Name("P"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Name("Q"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Name("R"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Line2P("A", "E"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Line2P("B", "F"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Line2P("A", "D"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Line2P("C", "F"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Line2P("B", "D"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Line2P("C", "E"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Line2P("P", "R"),
+      config: Some({
+        "color": String("grey"),
+        "dash": Number(5.0),
+      }),
+    ),
+  ]),
+]
