@@ -1,0 +1,48 @@
+---
+source: src/interpreter/tests/parser.rs
+expression: parse(&input).unwrap()
+input_file: test_input/trisect.prs
+---
+[
+  Decl(Decl(Direct("A"), PolarCoord(Number(4.0), Number(0.6981317007977318)))),
+  Decl(Decl(Direct("O"), PolarCoord(Number(0.0), Number(0.0)))),
+  Decl(Decl(Direct("B"), PolarCoord(Number(4.0), Number(0.0)))),
+  Decl(Decl(Direct("x"), Object(Numeric(Angle3P("A", "O", "B"))))),
+  Decl(Decl(Direct("x"), Object(Eval(" x / 3 ")))),
+  Decl(Decl(Direct("C"), Expr("rot", [
+    Name("B"),
+    Name("O"),
+    Name("x"),
+  ]))),
+  Decl(Decl(Direct("D"), Expr("rot", [
+    Name("B"),
+    Name("O"),
+    Eval(" 2 * x "),
+  ]))),
+  Draw([
+    StyledObject(
+      obj: Name("O"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Line2P("O", "A"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Line2P("O", "B"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Line2P("O", "C"),
+      config: Some({
+        "color": String("red"),
+      }),
+    ),
+    StyledObject(
+      obj: Line2P("O", "D"),
+      config: Some({
+        "color": String("red"),
+      }),
+    ),
+  ]),
+]

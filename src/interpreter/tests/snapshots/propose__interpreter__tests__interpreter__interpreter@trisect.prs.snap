@@ -1,0 +1,50 @@
+---
+source: src/interpreter/tests/interpreter.rs
+expression: interpreter
+input_file: test_input/trisect.prs
+---
+InterpreterState(
+  objects: {
+    "A": Point(Point(
+      x: 3.064177772475912,
+      y: 2.571150438746157,
+    )),
+    "B": Point(Point(
+      x: 4.0,
+      y: 0.0,
+    )),
+    "C": Point(Point(
+      x: 3.8921794823192952,
+      y: 0.9224634829697604,
+    )),
+    "D": Point(Point(
+      x: 3.574530561293649,
+      y: 1.7951967208018482,
+    )),
+    "O": Point(Point(
+      x: 0.0,
+      y: 0.0,
+    )),
+    "x": Number(0.23271056693257722),
+  },
+  config: {
+    "angle": Number(0.0),
+    "color": String("#000000"),
+    "decorcolor": String("#000000"),
+    "decorfill": String("#00000000"),
+    "decorsize": Number(8.0),
+    "decorwidth": Number(1.5),
+    "dist": Number(10.0),
+    "dotfill": String("#000000"),
+    "dotsize": Number(2.5),
+    "dotstroke": String("#000000"),
+    "dotwidth": Number(0.0),
+    "fill": String("#00000000"),
+    "font": String("serif"),
+    "height": Number(10.0),
+    "labelsize": Number(15.0),
+    "linewidth": Number(1.5),
+    "loc": Number(0.5),
+    "width": Number(10.0),
+  },
+)

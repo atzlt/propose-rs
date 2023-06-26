@@ -52,9 +52,11 @@ impl Arc {
         })
     }
     pub fn from_center(A: Point, O: Point, B: Point) -> CalcResult<Self> {
+        let r = O.distance(A);
+        let d = O.distance(B);
+        let B = O + (B - O) * (r / d);
         let Point { x: x1, y: y1 } = O - A;
         let Point { x: x2, y: y2 } = B - O;
-        let r = O.distance(A);
         let large_arc = x1 * y2 < x2 * y1;
         let angle = angle(A, O, B)?;
         let angle = if large_arc { 2.0 * PI - angle } else { angle };

@@ -1,10 +1,10 @@
 pub mod ast;
 
+use super::utils::ConfigValue;
+use ast::*;
 use pest_consume::Parser;
 use pest_consume::{match_nodes, Error};
 use std::f64::consts::PI;
-use ast::*;
-use super::utils::ConfigValue;
 
 type Result<T> = std::result::Result<T, Error<Rule>>;
 type Node<'i> = pest_consume::Node<'i, Rule, ()>;
@@ -211,7 +211,13 @@ impl ProposeParser {
     }
     #[inline]
     fn eval(input: Node) -> Result<Object> {
-        Ok(Object::Eval(input.as_str().to_string()))
+        let string = input
+            .as_str()
+            .strip_prefix("$")
+            .unwrap()
+            .strip_suffix("$")
+            .unwrap();
+        Ok(Object::Eval(string.to_string()))
     }
     #[inline]
     fn any_id(input: Node) -> Result<String> {

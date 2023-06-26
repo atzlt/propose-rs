@@ -62,6 +62,7 @@ pub enum InterpretError {
     LabelObjNotSupported,
     DecorObjNotSupported,
     NoSuchDecor,
+    EvalError(meval::Error),
 }
 
 /// Represents the state of an interpreter.
@@ -91,6 +92,7 @@ impl Default for InterpreterState {
 }
 
 impl InterpreterState {
+    // Basic operations.
     #[inline]
     pub fn new() -> Self {
         InterpreterState {
@@ -105,6 +107,14 @@ impl InterpreterState {
         self.layer.0.clear();
         self.config.clone_from(&DEFAULT_CONFIG);
     }
+
+    // Object getter.
+    #[inline]
+    pub(super) fn get(&self, key: &str) -> Option<&GObject> {
+        self.objects.get(key)
+    }
+
+    // Main functions.
     #[inline]
     pub fn interpret(&mut self, source: &str) -> std::result::Result<(), (usize, InterpretError)> {
         let input = parse(source);
@@ -409,8 +419,10 @@ impl InterpreterState {
                 }
             }
             Object::Numeric(n) => Ok(GObject::Number(self.get_numeric(*n)?)),
-            // TODO: Evaluation.
-            Object::Eval(_) => unimplemented!(),
+            Object::Eval(expr) => {
+                let result = self.eval(&expr)?;
+                Ok(GObject::Number(result))
+            }
             _ => self.get_common(obj),
         }
     }

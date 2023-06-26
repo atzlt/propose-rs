@@ -12,6 +12,7 @@ if_chain = "1.0.2"
 itertools = "0.10.5"
 lazy_static = "1.4.0"
 metric-rs = { git = "https://github.com/atzlt/metric-rs.git", features = ["serialize"] }
+meval = "0.2.0"
 pest = "2.0"
 pest_consume = "1.1.3"
 pest_derive = "2.0"

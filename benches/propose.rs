@@ -43,6 +43,16 @@ draw AP, BQ, CR;
 config color=\"red\";
 draw @(MNL);";
 
+const TRISECT: &str = "
+A = (4 : 40deg);
+O = (0 : 0);
+B = (4 : 0);
+x = <AOB;
+x = $ x / 3 $;
+C = rot B, O, x;
+D = rot B, O, $ 2 * x $;
+draw O, OA, OB, OC[color=\"red\"], OD[color=\"red\"];";
+
 pub fn interpreter_bench(c: &mut Criterion) {
     let mut interpreter = InterpreterState::new();
     c.bench_function("Interpreter - Reim's Thm", |b| {
@@ -54,6 +64,12 @@ pub fn interpreter_bench(c: &mut Criterion) {
     c.bench_function("Interpreter - Ninepoint", |b| {
         b.iter(|| {
             black_box(interpreter.interpret(NINEPOINT));
+            interpreter.clear()
+        })
+    });
+    c.bench_function("Interpreter - Trisect", |b| {
+        b.iter(|| {
+            black_box(interpreter.interpret(TRISECT));
             interpreter.clear()
         })
     });

@@ -127,6 +127,12 @@ lazy_static! {
                 [<Line>a, <Line>b] => <Line, None>Ok(a.reflect_in(b))
             ),
             entry!(
+                "rot";
+                [<Point>a, <Point>b, <Number>t] => <Point, None>Ok(a.rotate(b, t)),
+                [<Line>a, <Point>b, <Number>t] => <Line, None>Ok(a.rotate(b, t)),
+                [<Circle>a, <Point>b, <Number>t] => <Circle, None>Ok(a.rotate(b, t))
+            ),
+            entry!(
                 "inv";
                 [<Point>a, <Circle>c] => <Point, None>a.invert_in(c.O, c.r),
                 [<Line>l, <Circle>c] => <dyn, None>Ok(l.invert_in(c.O, c.r)),

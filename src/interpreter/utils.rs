@@ -159,6 +159,13 @@ impl From<DecorError> for InterpretError {
     }
 }
 
+impl From<meval::Error> for InterpretError {
+    #[inline]
+    fn from(value: meval::Error) -> Self {
+        Self::EvalError(value)
+    }
+}
+
 // Display error.
 
 impl Display for InterpretError {
@@ -173,6 +180,7 @@ impl Display for InterpretError {
             InterpretError::ParseError(e) => write!(f, "Cannot parse content: {}", e),
             InterpretError::WrongConfigType => write!(f, "Type of configuration is not correct"),
             InterpretError::WrongGeometricType => write!(f, "Type of geometric object is not correct"),
+            InterpretError::EvalError(e) => write!(f, "Error when evaluating expression: {}", e),
         }
     }
 }
