@@ -1,7 +1,7 @@
-use crate::interpreter::{utils::FuncError, utils::GObject};
+use crate::interpreter::{utils::FuncError, utils::GObject, structs::Segment};
 use lazy_static::lazy_static;
 use metric_rs::{
-    calc::{basic::*, construct::*, transform::*, trig::centers::*},
+    calc::{basic::*, construct::*, transform::*, trig::centers::*, point_on::PointOn},
     objects::*,
 };
 use std::collections::HashMap;
@@ -117,6 +117,14 @@ lazy_static! {
                 "polar";
                 [<Point>a, <Circle>c] => <Line, None>polar_line(a, c)
             ),
+            // Point on object
+            entry!(
+                "on";
+                [<Circle>c, <Number>x] => <Point, None>Ok(c.point_on(x)),
+                [<Point>from, <Point>to, <Number>x] => <Point, None>Ok(
+                    Segment { from, to }.point_on(x)
+                )
+            ),
             // Transformation
             entry!(
                 "rfl";
@@ -125,6 +133,12 @@ lazy_static! {
                 [<Circle>a, <Point>b] => <Circle, None>Ok(a.reflect_in(b)),
                 [<Point>a, <Line>b] => <Point, None>Ok(a.reflect_in(b)),
                 [<Line>a, <Line>b] => <Line, None>Ok(a.reflect_in(b))
+            ),
+            entry!(
+                "scl";
+                [<Point>a, <Point>b, <Number>c] => <Point, None>Ok(a.scale(b, c)),
+                [<Line>a, <Point>b, <Number>c] => <Line, None>Ok(a.scale(b, c)),
+                [<Circle>a, <Point>b, <Number>c] => <Circle, None>Ok(a.scale(b, c))
             ),
             entry!(
                 "rot";

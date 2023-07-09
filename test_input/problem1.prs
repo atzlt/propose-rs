@@ -1,0 +1,19 @@
+O = (0, 0);
+r = 4;
+c = @(O, r);
+C = (r : -20deg);
+A = (r : 100deg);
+B = (r : 200deg);
+D = i AO, c, A;
+x = <BAC;
+x = $ -180 * deg + 2 * x $;
+E = on A, B, 0.7;
+F = rot E, D, x;
+F = i DF, AC;
+l = ab E, D, F;
+G = i l, EF;
+draw c, A, B, C, D, E, F, G, AB, BC, CA, AD, DE, DF, EF, DG;
+
+config decorcolor="blue";
+K = i DG, BC;
+decor DK: |, KG: |;

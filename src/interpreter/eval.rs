@@ -20,6 +20,7 @@ impl ContextProvider for InterpreterState {
         match key {
             "pi" => Some(PI),
             "e" => Some(E),
+            "deg" => Some(PI / 180.0),
             _ => if let Some(GObject::Number(x)) = self.get(key) {
                 Some(*x)
             } else {

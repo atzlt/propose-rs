@@ -53,6 +53,27 @@ C = rot B, O, x;
 D = rot B, O, $ 2 * x $;
 draw O, OA, OB, OC[color=\"red\"], OD[color=\"red\"];";
 
+const PROBLEM1: &str = "
+O = (0, 0);
+r = 4;
+c = @(O, r);
+C = (r : -20deg);
+A = (r : 100deg);
+B = (r : 200deg);
+D = i AO, c, A;
+x = <BAC;
+x = $ -180 * deg + 2 * x $;
+E = on A, B, 0.7;
+F = rot E, D, x;
+F = i DF, AC;
+l = ab E, D, F;
+G = i l, EF;
+draw c, A, B, C, D, E, F, G, AB, BC, CA, AD, DE, DF, EF, DG;
+
+config decorcolor=\"blue\";
+K = i DG, BC;
+decor DK: |, KG: |;";
+
 pub fn interpreter_bench(c: &mut Criterion) {
     let mut interpreter = InterpreterState::new();
     c.bench_function("Interpreter - Reim's Thm", |b| {
@@ -70,6 +91,12 @@ pub fn interpreter_bench(c: &mut Criterion) {
     c.bench_function("Interpreter - Trisect", |b| {
         b.iter(|| {
             black_box(interpreter.interpret(TRISECT));
+            interpreter.clear()
+        })
+    });
+    c.bench_function("Interpreter - Problem 1", |b| {
+        b.iter(|| {
+            black_box(interpreter.interpret(PROBLEM1));
             interpreter.clear()
         })
     });
