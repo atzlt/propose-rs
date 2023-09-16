@@ -1,7 +1,7 @@
 use super::structs::{Arc, Segment};
 use super::{
     builtin::{config::DEFAULT_CONFIG, functions::FUNCTIONS},
-    draw::dobjects::StyledDObject,
+    draw::render::StyledDObject,
     parser::ast::*,
     parser::parse,
     utils::{ConfigValue, DObject, GObject},
@@ -218,9 +218,9 @@ impl InterpreterState {
                 DObject::Point(_) => LayerType::Dots,
                 DObject::Segment(_) => LayerType::Lines,
                 DObject::Arc(_) => LayerType::Lines,
+                DObject::Angle3P(_, _, _) => LayerType::Decor,
                 DObject::Circle(_) => LayerType::Lines,
                 DObject::Polygon(_) => LayerType::Area,
-                _ => unreachable!(),
             };
             self.layer.emit(layer, obj.to_string().as_str());
             // If a label is present, emit that label.

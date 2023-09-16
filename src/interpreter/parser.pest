@@ -25,6 +25,7 @@ draw       =  { "draw" ~ (draw_step ~ ",")* ~ draw_step }
 draw_step  =  { draw_obj ~ ("[" ~ configs ~ "]")? }
 draw_obj   =  {
     polygon
+  | angle_3p
   | arc
   | arc_o
   | common_obj
@@ -32,8 +33,7 @@ draw_obj   =  {
 decor      = { "decor" ~ (decor_step ~ ",")* ~ decor_step }
 decor_step = { decor_obj ~ ":" ~ decoration ~ ("[" ~ configs ~ "]")? }
 decor_obj  = {
-    polygon
-  | angle_3p
+    angle_3p
   | arc
   | arc_o
   | common_obj

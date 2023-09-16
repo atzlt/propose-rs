@@ -44,6 +44,9 @@ InterpreterState(
   },
   config: {
     "angle": Number(0.0),
+    "anglecolor": String("#000000"),
+    "anglesize": Number(20.0),
+    "anglewidth": Number(1.5),
     "color": String("green"),
     "decorcolor": String("#000000"),
     "decorfill": String("#00000000"),

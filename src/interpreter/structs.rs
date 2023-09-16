@@ -51,6 +51,8 @@ impl Arc {
             angle,
         })
     }
+    /// Constructs an arc starting from `A` and ending on ray `OB`, with center `O`.
+    /// Returns `CalcException` if `A = O` or `O = B`.
     pub fn from_center(A: Point, O: Point, B: Point) -> CalcResult<Self> {
         let r = O.distance(A);
         let d = O.distance(B);

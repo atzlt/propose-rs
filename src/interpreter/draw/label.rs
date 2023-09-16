@@ -1,6 +1,6 @@
 use crate::interpreter::utils::LabelError;
 
-use super::{dobjects::StyledDObject, CM};
+use super::{render::StyledDObject, CM};
 
 impl StyledDObject<'_> {
     /// **This method _assumes that config `label` is present.**

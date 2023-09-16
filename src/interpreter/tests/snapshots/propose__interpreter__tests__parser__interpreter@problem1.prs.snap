@@ -1,0 +1,128 @@
+---
+source: src/interpreter/tests/parser.rs
+expression: parse(&input).unwrap()
+input_file: test_input/problem1.prs
+---
+[
+  Decl(Decl(Direct("O"), OrthoCoord(Number(0.0), Number(0.0)))),
+  Decl(Decl(Direct("r"), Object(Numeric(Number(4.0))))),
+  Decl(Decl(Direct("c"), Object(CircOr("O", Name("r"))))),
+  Decl(Decl(Direct("C"), PolarCoord(Name("r"), Number(-0.3490658503988659)))),
+  Decl(Decl(Direct("A"), PolarCoord(Name("r"), Number(1.7453292519943295)))),
+  Decl(Decl(Direct("B"), PolarCoord(Name("r"), Number(3.490658503988659)))),
+  Decl(Decl(Direct("D"), Expr("i", [
+    Line2P("A", "O"),
+    Name("c"),
+    Name("A"),
+  ]))),
+  Decl(Decl(Direct("x"), Object(Numeric(Angle3P("B", "A", "C"))))),
+  Decl(Decl(Direct("x"), Object(Eval(" -180 * deg + 2 * x ")))),
+  Decl(Decl(Direct("E"), Expr("on", [
+    Name("A"),
+    Name("B"),
+    Numeric(Number(0.7)),
+  ]))),
+  Decl(Decl(Direct("F"), Expr("rot", [
+    Name("E"),
+    Name("D"),
+    Name("x"),
+  ]))),
+  Decl(Decl(Direct("F"), Expr("i", [
+    Line2P("D", "F"),
+    Line2P("A", "C"),
+  ]))),
+  Decl(Decl(Direct("l"), Expr("ab", [
+    Name("E"),
+    Name("D"),
+    Name("F"),
+  ]))),
+  Decl(Decl(Direct("G"), Expr("i", [
+    Name("l"),
+    Line2P("E", "F"),
+  ]))),
+  Draw([
+    StyledObject(
+      obj: Name("c"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Name("A"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Name("B"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Name("C"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Name("D"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Name("E"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Name("F"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Name("G"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Line2P("A", "B"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Line2P("B", "C"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Line2P("C", "A"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Line2P("A", "D"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Line2P("D", "E"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Line2P("D", "F"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Line2P("E", "F"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Line2P("D", "G"),
+      config: None,
+    ),
+  ]),
+  Config({
+    "decorcolor": String("blue"),
+  }),
+  Decl(Decl(Direct("K"), Expr("i", [
+    Line2P("D", "G"),
+    Line2P("B", "C"),
+  ]))),
+  Decor([
+    DecorObject(
+      obj: Line2P("D", "K"),
+      decor: "|",
+      config: None,
+    ),
+    DecorObject(
+      obj: Line2P("K", "G"),
+      decor: "|",
+      config: None,
+    ),
+  ]),
+]

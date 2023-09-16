@@ -5,11 +5,11 @@ use crate::{
         structs::{Arc, Segment},
         utils::{ConfigValue, DObject},
     },
-    write_circle, write_line,
+    write_circle, write_line, write_polygon, write_arc,
 };
 use if_chain::if_chain;
 use itertools::Itertools;
-use metric_rs::calc::{construct::center, point_on::PointOn};
+use metric_rs::calc::{construct::center, point_on::PointOn, basic::Distance};
 use metric_rs::objects::Point;
 use std::f64::consts::PI;
 use std::fmt::Display;
@@ -87,26 +87,13 @@ impl Display for StyledDObject<'_> {
                 )
             }
             DObject::Arc(arc) => {
-                let Arc {
-                    from,
-                    to,
-                    O: _,
-                    r,
-                    sweep,
-                    large_arc,
-                    angle: _,
-                } = arc;
-                write!(
+                write_arc!(
                     f,
-                    "<path d=\"M {},{} A {} {} 0 {} {} {},{}\" fill=\"none\" stroke=\"{}\" stroke-width=\"{}\"{}/>",
-                    from.x * CM,
-                    -from.y * CM,
-                    r * CM,
-                    r * CM,
-                    if *large_arc { 1 } else { 0 },
-                    if *sweep { 0 } else { 1 },
-                    to.x * CM,
-                    -to.y * CM,
+                    arc.from,
+                    arc.r,
+                    arc.large_arc,
+                    arc.sweep,
+                    arc.to,
                     self.get_unchecked("color"),
                     self.get_unchecked("linewidth"),
                     dash
@@ -117,14 +104,35 @@ impl Display for StyledDObject<'_> {
                     .iter()
                     .map(|p| format!("{},{}", p.x * CM, -p.y * CM))
                     .join(" ");
-                write!(
+                write_polygon!(
                     f,
-                    "<polygon points=\"{}\" fill=\"{}\"/>",
                     pts,
-                    self.get_unchecked("fill"),
+                    self.get_unchecked("fill")
                 )
             }
-            DObject::Angle3P(_, _, _) => unreachable!(),
+            // todo: Error handling in this (very special) branch
+            // todo: Draw right angle instead when `AOB` is an right angle
+            DObject::Angle3P(a, o, b) => {
+                let anglesize = self.get_unchecked("anglesize").try_into_f64().unwrap();
+                let a = *a * CM;
+                let o = *o * CM;
+                let b = *b * CM;
+                let dist = a.distance(o);
+                let a = o + (a - o) * (anglesize / dist);
+                let arc = Arc::from_center(a, o, b).unwrap();
+                write_arc!(
+                    f,
+                    in px:
+                    arc.from,
+                    arc.r,
+                    arc.large_arc,
+                    arc.sweep,
+                    arc.to,
+                    self.get_unchecked("anglecolor"),
+                    self.get_unchecked("anglewidth"),
+                    dash
+                )
+            },
         }
     }
 }
@@ -137,10 +145,13 @@ impl StyledDObject<'_> {
             DObject::Arc(arc) => arc.point_on(loc),
             DObject::Segment(seg) => seg.point_on(loc),
             DObject::Polygon(poly) => center(poly),
-            DObject::Angle3P(_, _, _) => todo!(),
+            DObject::Angle3P(a, o, b) => {
+                Arc::from_center(*a, *o, *b).unwrap().point_on(loc) // todo: Error handling
+            },
         }
     }
 
+    /// Get the angle of the tangent line at a certain point.
     pub(super) fn get_tan_angle(&self, loc: f64) -> f64 {
         match &self.obj {
             DObject::Segment(seg) => {

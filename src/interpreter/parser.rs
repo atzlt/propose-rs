@@ -118,10 +118,10 @@ impl ProposeParser {
         )
     }
     #[inline]
-    fn angle_3p(input: Node) -> Result<Numeric> {
+    fn angle_3p(input: Node) -> Result<(String, String, String)> {
         match_nodes!(
             input.into_children();
-            [point_id(a), point_id(b), point_id(c)] => Ok(Numeric::Angle3P(a, b, c))
+            [point_id(a), point_id(b), point_id(c)] => Ok((a, b, c))
         )
     }
     #[inline]
@@ -161,7 +161,7 @@ impl ProposeParser {
         match_nodes!(
             input.into_children();
             [distance(a)] => Ok(a),
-            [angle_3p(a)] => Ok(a),
+            [angle_3p((a, b, c))] => Ok(Numeric::Angle3P(a, b, c)),
             [angle_2l(a)] => Ok(a),
             [rich_number(a)] => Ok(Numeric::Number(a)),
             [common_id(a)] => Ok(Numeric::Name(a)),
@@ -256,6 +256,7 @@ impl ProposeParser {
             [polygon(a)] => Ok(a),
             [arc(a)] => Ok(a),
             [arc_o(a)] => Ok(a),
+            [angle_3p((a, b, c))] => Ok(Object::Angle3P(a, b, c)),
             [common_obj(a)] => Ok(a),
         )
     }
@@ -264,13 +265,7 @@ impl ProposeParser {
         match_nodes!(
             input.into_children();
             [polygon(a)] => Ok(a),
-            [angle_3p(a)] => {
-                if let Numeric::Angle3P(a, b, c) = a{
-                    Ok(Object::Angle3P(a, b, c))
-                } else {
-                    unreachable!()
-                }
-            },
+            [angle_3p((a, b, c))] => Ok(Object::Angle3P(a, b, c)),
             [arc(a)] => Ok(a),
             [arc_o(a)] => Ok(a),
             [common_obj(a)] => Ok(a),

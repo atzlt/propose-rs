@@ -1,4 +1,4 @@
-pub mod dobjects;
+pub mod render;
 pub mod label;
 pub mod decor;
 
@@ -60,6 +60,56 @@ macro_rules! write_circle {
             $fill,
             $width,
             $dash,
+        )
+    };
+}
+
+#[macro_export]
+macro_rules! write_arc {
+    ($str:ident, $from:expr, $r: expr, $large_arc:expr, $sweep:expr, $to:expr, $color:expr, $width:expr, $dash:expr) => {
+        write!(
+            $str,
+            "<path d=\"M {},{} A {} {} 0 {} {} {},{}\" fill=\"none\" stroke=\"{}\" stroke-width=\"{}\"{}/>",
+            $from.x * CM,
+            -$from.y * CM,
+            $r * CM,
+            $r * CM,
+            if $large_arc { 1 } else { 0 },
+            if $sweep { 0 } else { 1 },
+            $to.x * CM,
+            -$to.y * CM,
+            $color,
+            $width,
+            $dash
+        )
+    };
+    ($str:ident, in px: $from:expr, $r: expr, $large_arc:expr, $sweep:expr, $to:expr, $color:expr, $width:expr, $dash:expr) => {
+        write!(
+            $str,
+            "<path d=\"M {},{} A {} {} 0 {} {} {},{}\" fill=\"none\" stroke=\"{}\" stroke-width=\"{}\"{}/>",
+            $from.x,
+            -$from.y,
+            $r,
+            $r,
+            if $large_arc { 1 } else { 0 },
+            if $sweep { 0 } else { 1 },
+            $to.x,
+            -$to.y,
+            $color,
+            $width,
+            $dash
+        )
+    };
+}
+
+#[macro_export]
+macro_rules! write_polygon {
+    ($str:ident, $pts:ident, $fill:expr) => {
+        write!(
+            $str,
+            "<polygon points=\"{}\" fill=\"{}\"/>",
+            $pts,
+            $fill,
         )
     };
 }

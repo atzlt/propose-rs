@@ -1,0 +1,36 @@
+---
+source: src/interpreter/tests/parser.rs
+expression: parse(&input).unwrap()
+input_file: test_input/draw_angle.prs
+---
+[
+  Decl(Decl(Direct("A"), OrthoCoord(Number(2.0), Number(3.0)))),
+  Decl(Decl(Direct("O"), OrthoCoord(Number(0.0), Number(0.0)))),
+  Decl(Decl(Direct("B"), OrthoCoord(Number(4.0), Number(0.0)))),
+  Draw([
+    StyledObject(
+      obj: Name("A"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Name("O"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Name("B"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Line2P("A", "O"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Line2P("O", "B"),
+      config: None,
+    ),
+    StyledObject(
+      obj: Angle3P("A", "O", "B"),
+      config: None,
+    ),
+  ]),
+]

@@ -1,4 +1,4 @@
-use super::dobjects::StyledDObject;
+use super::render::StyledDObject;
 use crate::interpreter::{utils::{ConfigValue, DecorError}, builtin::decor::DECORATIONS};
 use if_chain::if_chain;
 use metric_rs::objects::Point;
