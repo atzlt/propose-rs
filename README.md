@@ -1,6 +1,6 @@
 # Propose
 
-Propose is a tool to generate geometric figures (SVG format) from text files.
+Propose is a tool to generate geometric figures of SVG format from text files.
 
 For a usage guide see [Usage](./Usage.md).
 
@@ -34,12 +34,8 @@ draw A-B-C-D[fill="#ff000033"];
 
 **_Warning: currently this project uses `meval` for evaluating expressions, but this dependency is using deprecated Rust features, which will be rejected by future Rust versions._** I don't have time to solve this problem recently, sorry.
 
-- [x] Drawing with various styles
-- [ ] REPL mode
-- [x] Evaluate math expressions
-- [x] Labels
-- [x] Decoration
-
 ### Future Plans
 
 - [ ] Draw infinite lines
+- [ ] REPL mode
+- [ ] Embed into web

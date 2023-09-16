@@ -114,13 +114,19 @@ You can inline some temporary configurations in square brackets `[]`. The config
 You can also fill a polygon:
 
 ```
-draw A-B-C-D-E[fill=#ff000033]
+draw A-B-C-D-E[fill=#ff000033];
 ```
 
 or an 3-point arc:
 
 ```
-draw A~B~C[dash=5]
+draw A~B~C[dash=5];
+```
+
+or an angle:
+
+```
+draw <AOB[anglecolor="red"];
 ```
 
 The unit length is 1 centimeter. The y-axis of SVG coordinate system is flipped, so a point `(a, b)` is actually rendered as `x="a cm", y="-b cm"` in the output.
