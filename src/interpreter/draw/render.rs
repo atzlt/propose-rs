@@ -145,8 +145,18 @@ impl StyledDObject<'_> {
             DObject::Arc(arc) => arc.point_on(loc),
             DObject::Segment(seg) => seg.point_on(loc),
             DObject::Polygon(poly) => center(poly),
+            // todo: Error handling in this branch
             DObject::Angle3P(a, o, b) => {
-                Arc::from_center(*a, *o, *b).unwrap().point_on(loc) // todo: Error handling
+                let anglesize = self.get_unchecked("anglesize").try_into_f64().unwrap();
+                let a = *a * CM;
+                let o = *o * CM;
+                let b = *b;
+                let dist = a.distance(o);
+                let a = o + (a - o) * (anglesize / dist);
+                let a = a / CM;
+                let o = o / CM;
+                let arc = Arc::from_center(a, o, b).unwrap();
+                arc.point_on(loc)
             },
         }
     }

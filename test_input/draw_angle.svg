@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="377.95000000000005" height="377.95000000000005" viewBox="-188.97500000000002 -188.97500000000002 377.95000000000005 377.95000000000005">
 
 <line x1="2cm" y1="-3cm" x2="0cm" y2="-0cm" stroke="#000000" stroke-width="1.5"/><line x1="0cm" y1="-0cm" x2="4cm" y2="-0cm" stroke="#000000" stroke-width="1.5"/>
-<path d="M 11.094003924504582,-16.641005886756872 A 19.999999999999996 19.999999999999996 0 0 1 19.999999999999996,-0" fill="none" stroke="#000000" stroke-width="1.5"/>
+<path d="M 11.094003924504582,-16.641005886756872 A 19.999999999999996 19.999999999999996 0 0 1 19.999999999999996,-0" fill="none" stroke="#000000" stroke-width="1.5"/><line x1="24.68688876550242" y1="-13.212021914896685" x2="10.580095185215324" y2="-5.662295106384293" stroke="#000000" stroke-width="1.5"/>
 <circle cx="2cm" cy="-3cm" r="2.5" stroke="#000000" fill="#000000" stroke-width="0"/><circle cx="0cm" cy="-0cm" r="2.5" stroke="#000000" fill="#000000" stroke-width="0"/><circle cx="4cm" cy="-0cm" r="2.5" stroke="#000000" fill="#000000" stroke-width="0"/>
-
+<text font-size="15" font-family="serif" font-style="italic" text-anchor="middle" dominant-baseline="middle" x="0.7311414730879447cm" y="-0.24969330627438782cm">x</text>
 </svg>

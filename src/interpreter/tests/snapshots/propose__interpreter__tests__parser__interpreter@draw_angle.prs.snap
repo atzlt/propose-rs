@@ -30,6 +30,15 @@ input_file: test_input/draw_angle.prs
     ),
     StyledObject(
       obj: Angle3P("A", "O", "B"),
+      config: Some({
+        "label": String("x"),
+      }),
+    ),
+  ]),
+  Decor([
+    DecorObject(
+      obj: Angle3P("A", "O", "B"),
+      decor: "|",
       config: None,
     ),
   ]),
