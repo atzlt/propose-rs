@@ -15,7 +15,7 @@ lazy_static! {
         entry!("width", 10.0),
         entry!("height", 10.0),
         entry!("color", "#000000"),
-        entry!("fill", "#00000000"),
+        entry!("fill", "none"),
         entry!("linewidth", 1.5),
         entry!("dotsize", 2.5),
         entry!("dotstroke", "#000000"),
@@ -30,7 +30,7 @@ lazy_static! {
         entry!("decorsize", 5.0),
         entry!("decorwidth", 1.5),
         entry!("decorcolor", "#000000"),
-        entry!("decorfill", "#00000000"),
+        entry!("decorfill", "none"),
         entry!("loc", 0.5),
         entry!("font", "serif"),
     ]);
