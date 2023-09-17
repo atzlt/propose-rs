@@ -4,6 +4,10 @@ expression: parse(&input).unwrap()
 input_file: test_input/draw_angle.prs
 ---
 [
+  Config({
+    "font": String("CMU Serif"),
+    "labelsize": Number(20.0),
+  }),
   Decl(Decl(Direct("A"), OrthoCoord(Number(2.0), Number(3.0)))),
   Decl(Decl(Direct("O"), OrthoCoord(Number(0.0), Number(0.0)))),
   Decl(Decl(Direct("B"), OrthoCoord(Number(4.0), Number(0.0)))),
@@ -38,7 +42,7 @@ input_file: test_input/draw_angle.prs
   Decor([
     DecorObject(
       obj: Angle3P("A", "O", "B"),
-      decor: "|",
+      decor: ">",
       config: None,
     ),
   ]),

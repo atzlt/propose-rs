@@ -1,6 +1,6 @@
-pub mod render;
-pub mod label;
 pub mod decor;
+pub mod label;
+pub mod render;
 
 pub const CM: f64 = 37.795;
 
@@ -105,11 +105,17 @@ macro_rules! write_arc {
 #[macro_export]
 macro_rules! write_polygon {
     ($str:ident, $pts:ident, $fill:expr) => {
+        write!($str, "<polygon points=\"{}\" fill=\"{}\"/>", $pts, $fill)
+    };
+}
+
+#[macro_export]
+macro_rules! write_polyline {
+    ($str:ident, $pts:expr, $color:expr, $width:expr) => {
         write!(
             $str,
-            "<polygon points=\"{}\" fill=\"{}\"/>",
-            $pts,
-            $fill,
+            "<polyline points=\"{}\" fill=\"none\" stroke=\"{}\" stroke-width=\"{}\"/>",
+            $pts, $color, $width,
         )
     };
 }

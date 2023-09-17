@@ -1,6 +1,6 @@
 use crate::{
     interpreter::draw::{decor::DecorConfig, CM},
-    write_line,
+    write_line, write_polyline,
 };
 use lazy_static::lazy_static;
 use metric_rs::objects::Point;
@@ -84,10 +84,21 @@ lazy_static! {
                 (angle - PI * 2.0 / 3.0).cos() * size,
                 (angle - PI * 2.0 / 3.0).sin() * size,
             );
+            // let pos = pos * CM;
+            // let mut string = String::new();
+            // write_line!(string, pos + offset1, pos + offset2 => in px, color, width, "").unwrap();
+            // write_line!(string, pos + offset1, pos + offset3 => in px, color, width, "").unwrap();
+            // string
             let pos = pos * CM;
             let mut string = String::new();
-            write_line!(string, pos + offset1, pos + offset2 => in px, color, width, "").unwrap();
-            write_line!(string, pos + offset1, pos + offset3 => in px, color, width, "").unwrap();
+            let pt1 = pos + offset1;
+            let pt2 = pos + offset2;
+            let pt3 = pos + offset3;
+            let pts = format!(
+                "{},-{} {},-{} {},-{}",
+                pt2.x, pt2.y, pt1.x, pt1.y, pt3.x, pt3.y,
+            );
+            write_polyline!(string, pts, color, width).unwrap();
             string
         })
     ]);

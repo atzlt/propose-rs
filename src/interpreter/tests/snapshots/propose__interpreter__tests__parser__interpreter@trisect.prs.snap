@@ -8,7 +8,7 @@ input_file: test_input/trisect.prs
   Decl(Decl(Direct("O"), PolarCoord(Number(0.0), Number(0.0)))),
   Decl(Decl(Direct("B"), PolarCoord(Number(4.0), Number(0.0)))),
   Decl(Decl(Direct("x"), Object(Numeric(Angle3P("A", "O", "B"))))),
-  Decl(Decl(Direct("x"), Object(Eval(" x / 3 ")))),
+  Decl(Decl(Direct("x"), Object(Eval(" x / sqrt(3) / sqrt(sqrt(3)) / sqrt(sqrt(6 - 1 - 2 * (-1) / (-1))) * sin(1) / sin(1) ")))),
   Decl(Decl(Direct("C"), Expr("rot", [
     Name("B"),
     Name("O"),
