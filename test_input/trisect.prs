@@ -2,7 +2,7 @@ A = (4 : 40deg);
 O = (0 : 0);
 B = (4 : 0);
 x = <AOB;
-x = $ x / 3 $;
+x = $ x / sqrt(3) / sqrt(sqrt(3)) / sqrt(sqrt(6 - 1 - 2 * (-1) / (-1))) * sin(1) / sin(1) $;
 C = rot B, O, x;
 D = rot B, O, $ 2 * x $;
 draw O, OA, OB, OC[color="red"], OD[color="red"];
