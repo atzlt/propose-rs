@@ -1,6 +1,8 @@
+config font="CMU Serif", labelsize=20;
+
 A = (2, 3);
 O = (0, 0);
 B = (4, 0);
 
 draw A, O, B, AO, OB, <AOB[label="x"];
-decor <AOB: |;
+decor <AOB: >;

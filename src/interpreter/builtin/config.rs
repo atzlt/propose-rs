@@ -27,7 +27,7 @@ lazy_static! {
         entry!("anglesize", 20.0),
         entry!("anglecolor", "#000000"),
         entry!("anglewidth", 1.5),
-        entry!("decorsize", 8.0),
+        entry!("decorsize", 5.0),
         entry!("decorwidth", 1.5),
         entry!("decorcolor", "#000000"),
         entry!("decorfill", "#00000000"),
