@@ -2,6 +2,8 @@ use crate::interpreter::utils::LabelError;
 
 use super::{render::StyledDObject, CM};
 
+use anyhow::Result;
+
 macro_rules! get_or_wrong_type {
     ($config:ident, $key:expr) => {
         $config
@@ -13,7 +15,7 @@ macro_rules! get_or_wrong_type {
 
 impl StyledDObject<'_> {
     /// **This method _assumes that config `label` is present.**
-    pub fn label(&self) -> Result<String, LabelError> {
+    pub fn label(&self) -> Result<String> {
         let mut label = self.get_unchecked("label").to_string();
 
         // Get label styles.
@@ -26,15 +28,10 @@ impl StyledDObject<'_> {
 
         // Process the label.
 
-        if label.contains("_") {
+        if label.contains('_') {
             label = label.replacen(
-                "_",
-                format!(
-                    "<tspan dy=\"{}\" font-size=\"{}\">",
-                    size * 0.3,
-                    size * 0.5,
-                )
-                .as_str(),
+                '_',
+                format!("<tspan dy=\"{}\" font-size=\"{}\">", size * 0.3, size * 0.5,).as_str(),
                 1,
             );
             label += "</tspan>";

@@ -1,11 +1,11 @@
 use crate::{
     interpreter::draw::{decor::DecorConfig, CM},
-    write_line, write_polyline,
+    write_circle, write_line, write_polyline,
 };
 use lazy_static::lazy_static;
 use metric_rs::objects::Point;
-use std::{f64::consts::PI, collections::HashMap};
 use std::fmt::Write;
+use std::{collections::HashMap, f64::consts::PI};
 
 type DecorFunction = fn(DecorConfig) -> String;
 
@@ -95,10 +95,22 @@ lazy_static! {
             let pt2 = pos + offset2;
             let pt3 = pos + offset3;
             let pts = format!(
-                "{},-{} {},-{} {},-{}",
-                pt2.x, pt2.y, pt1.x, pt1.y, pt3.x, pt3.y,
+                "{},{} {},{} {},{}",
+                pt2.x, -pt2.y, pt1.x, -pt1.y, pt3.x, -pt3.y,
             );
             write_polyline!(string, pts, color, width).unwrap();
+            string
+        }),
+        entry!("o", |DecorConfig {
+                         pos,
+                         size,
+                         angle: _,
+                         width,
+                         color,
+                         fill: _,
+                     }| {
+            let mut string = String::new();
+            write_circle!(string, pos, size / 2.0 => in px, color, "none", width, "").unwrap();
             string
         })
     ]);

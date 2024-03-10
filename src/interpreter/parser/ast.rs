@@ -86,7 +86,6 @@ pub enum FileLine {
     Config(Config),
     Draw(Draw),
     Decor(Decor),
-    Save(String),
     Decl(Box<Decl>),
 }
 

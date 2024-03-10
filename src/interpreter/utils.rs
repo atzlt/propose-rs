@@ -1,8 +1,15 @@
-use std::fmt::Display;
-use metric_rs::{calc::exception::CalcException, objects::{Point, Circle, Line}};
+use super::{
+    interpret::InterpretError,
+    structs::{Arc, Segment},
+};
+use anyhow::Result;
+use metric_rs::{
+    calc::exception::CalcException, objects::{Circle, Line, Point}
+};
 #[cfg(test)]
 use serde::Serialize;
-use super::{structs::{Segment, Arc}, interpret::InterpretError};
+use std::fmt::Display;
+use thiserror::Error;
 
 #[cfg_attr(test, derive(Serialize))]
 #[derive(Debug, Clone)]
@@ -23,8 +30,9 @@ impl Display for ConfigValue {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum ConversionError {
+    #[error("Cannot convert into f64")]
     ToF64,
 }
 
@@ -75,35 +83,39 @@ pub enum DObject {
     Angle3P(Point, Point, Point),
 }
 
-impl From<GObject> for Result<DObject, InterpretError> {
+impl From<GObject> for Result<DObject> {
     #[inline]
-    fn from(val: GObject) -> Result<DObject, InterpretError> {
+    fn from(val: GObject) -> Result<DObject> {
         match val {
             GObject::Circle(c) => Ok(DObject::Circle(c)),
             GObject::Point(p) => Ok(DObject::Point(p)),
-            _ => Err(InterpretError::WrongGeometricType),
+            _ => Err(InterpretError::WrongGeometricType)?,
         }
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum LabelError {
+    #[error("Wrong configuration type")]
     WrongConfigType,
-    ObjNotSupported,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum DecorError {
+    #[error("No such decoration")]
     NoSuchDecor,
-    ObjNotSupported,
+    #[error("Wrong configuration type")]
     WrongConfigType,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum FuncError {
-    CalcError(CalcException),
+    #[error("Argument error")]
     ArgError,
+    #[error("No such method: {0}")]
     NoFunc(String),
+    #[error("Calculation exception: {0}")]
+    CalcError(CalcException)
 }
 
 // Conversions.
@@ -115,82 +127,9 @@ impl From<bool> for ConfigValue {
     }
 }
 
-impl From<CalcException> for InterpretError {
-    #[inline]
-    fn from(value: CalcException) -> Self {
-        Self::FuncError(FuncError::CalcError(value))
-    }
-}
-
-impl From<FuncError> for InterpretError {
-    #[inline]
-    fn from(value: FuncError) -> Self {
-        Self::FuncError(value)
-    }
-}
-
-impl From<ConversionError> for InterpretError {
-    #[inline]
-    fn from(value: ConversionError) -> Self {
-        match value {
-            ConversionError::ToF64 => Self::WrongConfigType,
-        }
-    }
-}
-
-impl From<LabelError> for InterpretError {
-    #[inline]
-    fn from(value: LabelError) -> Self {
-        match value {
-            LabelError::ObjNotSupported => Self::LabelObjNotSupported,
-            LabelError::WrongConfigType => Self::WrongConfigType,
-        }
-    }
-}
-
-impl From<DecorError> for InterpretError {
-    #[inline]
-    fn from(value: DecorError) -> Self {
-        match value {
-            DecorError::ObjNotSupported => Self::DecorObjNotSupported,
-            DecorError::WrongConfigType => Self::WrongConfigType,
-            DecorError::NoSuchDecor => Self::NoSuchDecor
-        }
-    }
-}
-
 impl From<meval::Error> for InterpretError {
     #[inline]
     fn from(value: meval::Error) -> Self {
         Self::EvalError(value)
-    }
-}
-
-// Display error.
-
-impl Display for InterpretError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            InterpretError::DecorObjNotSupported => write!(f, "Cannot decorate object"),
-            InterpretError::FuncError(e) => write!(f, "Error when running function: {}", e),
-            InterpretError::IOError(e) => write!(f, "Error when saving file: {}", e),
-            InterpretError::LabelObjNotSupported => write!(f, "Cannot label object"),
-            InterpretError::MissingKey(key) => write!(f, "Cannot find name: {}", key),
-            InterpretError::NoSuchDecor => write!(f, "No such decoration"),
-            InterpretError::ParseError(e) => write!(f, "Cannot parse content: {}", e),
-            InterpretError::WrongConfigType => write!(f, "Type of configuration is not correct"),
-            InterpretError::WrongGeometricType => write!(f, "Type of geometric object is not correct"),
-            InterpretError::EvalError(e) => write!(f, "Error when evaluating expression: {}", e),
-        }
-    }
-}
-
-impl Display for FuncError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            FuncError::ArgError => write!(f, "Wrong argument"),
-            FuncError::CalcError(e) => write!(f, "Exception during calculation: {}", e),
-            FuncError::NoFunc(name) => write!(f, "No such method: {}", name),
-        }
     }
 }

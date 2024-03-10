@@ -1,6 +1,7 @@
 use crate::interpreter::interpret::InterpreterState;
+use anyhow::Result;
 use clap::Parser;
-use std::{env, fs, io, path::PathBuf};
+use std::{env, fs, path::PathBuf};
 
 #[derive(Parser)]
 #[command(name = "Propose")]
@@ -29,17 +30,6 @@ struct Cli {
     no_save: bool,
 }
 
-macro_rules! ok_or_print_ln_number {
-    ($res:expr, $str:literal) => {
-        let result = $res;
-        if let Err(e) = result {
-            println!("On interpreting line {}:", e.0);
-            println!($str, e.1);
-            return Ok(());
-        }
-    };
-}
-
 macro_rules! ok_or_print {
     ($res:expr, $str:literal) => {
         let result = $res;
@@ -50,21 +40,23 @@ macro_rules! ok_or_print {
     };
 }
 
-pub fn cli_main() -> io::Result<()> {
+pub fn cli_main() -> Result<()> {
     let cli = Cli::parse();
     let input = cli.input;
 
     if input.is_file() {
-        // TODO: Change working directory.
         let output = match cli.output {
             Some(path) => path,
             None => input.with_extension("svg"),
         };
         let file = fs::read_to_string(input)?;
         let mut interpreter = InterpreterState::new();
-        ok_or_print_ln_number!(interpreter.interpret(&file), "Cannot interpret file: {}");
+        ok_or_print!(interpreter.interpret(&file), "Cannot interpret file: {}");
         if !cli.no_save {
-            ok_or_print!(interpreter.save(output), "Cannot save to output: {}");
+            ok_or_print!(
+                fs::write(output, interpreter.emit()?),
+                "Cannot save to output: {}"
+            );
         }
     } else if input.is_dir() {
         env::set_current_dir(&input)?;
@@ -76,11 +68,11 @@ pub fn cli_main() -> io::Result<()> {
                 if ext == cli.extension.as_str() {
                     let output = input.with_extension("svg");
                     let file = fs::read_to_string(input)?;
-                    ok_or_print_ln_number!(
-                        interpreter.interpret(&file),
-                        "Cannot interpret file: {}"
+                    ok_or_print!(interpreter.interpret(&file), "Cannot interpret file: {}");
+                    ok_or_print!(
+                        fs::write(output, interpreter.emit()?),
+                        "Cannot save to output: {}"
                     );
-                    ok_or_print!(interpreter.save(output), "Cannot save to output: {}");
                     interpreter.clear();
                 }
             }

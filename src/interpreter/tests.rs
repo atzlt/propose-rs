@@ -1,2 +1,2 @@
-mod parser;
 mod interpreter;
+mod parser;

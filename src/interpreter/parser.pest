@@ -2,7 +2,7 @@ main = {
     SOI ~ file_line* ~ eoi
 }
 
-file_line = { (draw | decor | decl | config_line | save_file) ~ ";" }
+file_line = { (draw | decor | decl | config_line) ~ ";" }
 
 decl       = { decl_left ~ "=" ~ decl_right }
 decl_left  = { destruct | direct }
@@ -46,8 +46,6 @@ config       =  { config_name ~ "=" ~ config_value }
 config_name  = @{ (ASCII_ALPHA_LOWER | "-")+ }
 config_value =  { rich_number | boolean | string }
 
-save_file = { "save" ~ raw_string }
-
 trig       = ${ point_id ~ point_id ~ point_id }
 line_2p    =  { point_id ~ point_id }
 circ_3p    =  { "@(" ~ point_id ~ point_id ~ point_id ~ ")" }
@@ -78,7 +76,6 @@ polar_coord = { numeric ~ ":" ~ numeric }
 
 eval = { "$" ~ (!"$" ~ ANY)* ~ "$" }
 
-raw_string  = @{ (!(NEWLINE | ";") ~ ANY)* }
 rich_number =  { degree | number }
 boolean     =  { "true" | "false" }
 degree      = @{ number ~ "deg" }

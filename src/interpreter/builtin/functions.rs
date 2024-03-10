@@ -1,7 +1,7 @@
-use crate::interpreter::{utils::FuncError, utils::GObject, structs::Segment};
+use crate::interpreter::{structs::Segment, utils::FuncError, utils::GObject};
 use lazy_static::lazy_static;
 use metric_rs::{
-    calc::{basic::*, construct::*, transform::*, trig::centers::*, point_on::PointOn},
+    calc::{basic::*, construct::*, point_on::PointOn, transform::*, trig::centers::*},
     objects::*,
 };
 use std::collections::HashMap;

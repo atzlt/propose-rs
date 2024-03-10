@@ -1,8 +1,11 @@
-use std::f64::consts::{PI, E};
+use std::f64::consts::{E, PI};
 
 use meval::{ContextProvider, Expr};
 
-use super::{utils::GObject, interpret::{InterpreterState, InterpretError}};
+use super::{
+    interpret::{InterpretError, InterpreterState},
+    utils::GObject,
+};
 
 macro_rules! func {
     ($args:ident; $len:literal, $ret:expr) => {
@@ -21,10 +24,12 @@ impl ContextProvider for InterpreterState {
             "pi" => Some(PI),
             "e" => Some(E),
             "deg" => Some(PI / 180.0),
-            _ => if let Some(GObject::Number(x)) = self.get(key) {
-                Some(*x)
-            } else {
-                None
+            _ => {
+                if let Some(GObject::Number(x)) = self.get(key) {
+                    Some(*x)
+                } else {
+                    None
+                }
             }
         }
     }
@@ -44,7 +49,7 @@ impl InterpreterState {
     #[inline]
     pub(super) fn eval(&self, expr: &str) -> Result<f64, InterpretError> {
         let expr: Expr = expr.parse()?;
-        let result = expr.eval_with_context(&self)?;
+        let result = expr.eval_with_context(self)?;
         Ok(result)
     }
 }

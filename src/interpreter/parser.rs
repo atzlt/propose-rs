@@ -168,10 +168,6 @@ impl ProposeParser {
         )
     }
     #[inline]
-    fn raw_string(input: Node) -> Result<String> {
-        Ok(input.as_str().to_string())
-    }
-    #[inline]
     fn boolean(input: Node) -> Result<bool> {
         match input.as_str() {
             "true" => Ok(true),
@@ -213,9 +209,9 @@ impl ProposeParser {
     fn eval(input: Node) -> Result<Object> {
         let string = input
             .as_str()
-            .strip_prefix("$")
+            .strip_prefix('$')
             .unwrap()
-            .strip_suffix("$")
+            .strip_suffix('$')
             .unwrap();
         Ok(Object::Eval(string.to_string()))
     }
@@ -387,20 +383,12 @@ impl ProposeParser {
         input.into_children().map(Self::decor_step).collect()
     }
     #[inline]
-    fn save_file(input: Node) -> Result<String> {
-        match_nodes!(
-            input.into_children();
-            [raw_string(a)] => Ok(a)
-        )
-    }
-    #[inline]
     fn file_line(input: Node) -> Result<FileLine> {
         match_nodes!(
             input.into_children();
             [config_line(a)] => Ok(FileLine::Config(a)),
             [draw(a)] => Ok(FileLine::Draw(a)),
             [decor(a)] => Ok(FileLine::Decor(a)),
-            [save_file(a)] => Ok(FileLine::Save(a)),
             [decl(a)] => Ok(FileLine::Decl(Box::new(a))),
         )
     }

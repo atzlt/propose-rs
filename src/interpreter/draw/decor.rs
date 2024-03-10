@@ -1,5 +1,9 @@
 use super::render::StyledDObject;
-use crate::interpreter::{utils::{ConfigValue, DecorError}, builtin::decor::DECORATIONS};
+use crate::interpreter::{
+    builtin::decor::DECORATIONS,
+    utils::{ConfigValue, DecorError},
+};
+use anyhow::Result;
 use if_chain::if_chain;
 use metric_rs::objects::Point;
 
@@ -14,7 +18,7 @@ pub struct DecorConfig {
 }
 
 impl DecorConfig {
-    pub fn get_from_styled_dobj(dobj: &StyledDObject) -> Result<Self, DecorError> {
+    pub fn get_from_styled_dobj(dobj: &StyledDObject) -> Result<Self> {
         if_chain! {
             if let ConfigValue::Number(loc) = dobj.get_unchecked("loc");
             if let ConfigValue::Number(size) = dobj.get_unchecked("decorsize");
@@ -31,13 +35,13 @@ impl DecorConfig {
                     fill: fill.clone(),
                 })
             }
-            else { Err(DecorError::WrongConfigType) }
+            else { Err(DecorError::WrongConfigType)? }
         }
     }
 }
 
 impl StyledDObject<'_> {
-    pub fn decor(&self, decor: &str) -> Result<String, DecorError> {
+    pub fn decor(&self, decor: &str) -> Result<String> {
         let decor_config = DecorConfig::get_from_styled_dobj(self)?;
         let decor_func = DECORATIONS.get(decor).ok_or(DecorError::NoSuchDecor)?;
         Ok(decor_func(decor_config))

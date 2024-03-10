@@ -5,11 +5,15 @@ use crate::{
         structs::{Arc, Segment},
         utils::{ConfigValue, DObject},
     },
-    write_circle, write_line, write_polygon, write_arc,
+    write_arc, write_circle, write_line, write_polygon, write_polyline,
 };
 use if_chain::if_chain;
 use itertools::Itertools;
-use metric_rs::calc::{construct::center, point_on::PointOn, basic::Distance};
+use metric_rs::calc::{
+    basic::{angle, Distance},
+    construct::center,
+    point_on::PointOn,
+};
 use metric_rs::objects::Point;
 use std::f64::consts::PI;
 use std::fmt::Display;
@@ -104,35 +108,51 @@ impl Display for StyledDObject<'_> {
                     .iter()
                     .map(|p| format!("{},{}", p.x * CM, -p.y * CM))
                     .join(" ");
-                write_polygon!(
-                    f,
-                    pts,
-                    self.get_unchecked("fill")
-                )
+                write_polygon!(f, pts, self.get_unchecked("fill"))
             }
-            // todo: Error handling in this (very special) branch
-            // todo: Draw right angle instead when `AOB` is an right angle
+            // TODO: Error handling in this (very special) branch
             DObject::Angle3P(a, o, b) => {
                 let anglesize = self.get_unchecked("anglesize").try_into_f64().unwrap();
                 let a = *a * CM;
                 let o = *o * CM;
                 let b = *b * CM;
                 let dist = a.distance(o);
-                let a = o + (a - o) * (anglesize / dist);
-                let arc = Arc::from_center(a, o, b).unwrap();
-                write_arc!(
-                    f,
-                    in px:
-                    arc.from,
-                    arc.r,
-                    arc.large_arc,
-                    arc.sweep,
-                    arc.to,
-                    self.get_unchecked("anglecolor"),
-                    self.get_unchecked("anglewidth"),
-                    dash
-                )
-            },
+                if (angle(a, o, b).unwrap() - PI / 2.0).abs() <= 1e-10 {
+                    let a = o + (a - o) * (anglesize * 0.8 / dist);
+                    let dx = (a - o).x;
+                    let dy = (a - o).y;
+                    let pts = format!(
+                        "{},{} {},{} {},{}",
+                        a.x,
+                        -a.y,
+                        a.x + dy,
+                        -(a.y - dx),
+                        o.x + dy,
+                        -(o.y - dx)
+                    );
+                    write_polyline!(
+                        f,
+                        pts,
+                        self.get_unchecked("anglecolor"),
+                        self.get_unchecked("anglewidth")
+                    )
+                } else {
+                    let a = o + (a - o) * (anglesize / dist);
+                    let arc = Arc::from_center(a, o, b).unwrap();
+                    write_arc!(
+                        f,
+                        in px:
+                        arc.from,
+                        arc.r,
+                        arc.large_arc,
+                        arc.sweep,
+                        arc.to,
+                        self.get_unchecked("anglecolor"),
+                        self.get_unchecked("anglewidth"),
+                        dash
+                    )
+                }
+            }
         }
     }
 }
@@ -145,7 +165,7 @@ impl StyledDObject<'_> {
             DObject::Arc(arc) => arc.point_on(loc),
             DObject::Segment(seg) => seg.point_on(loc),
             DObject::Polygon(poly) => center(poly),
-            // todo: Error handling in this branch
+            // TODO: Error handling in this branch
             DObject::Angle3P(a, o, b) => {
                 let anglesize = self.get_unchecked("anglesize").try_into_f64().unwrap();
                 let a = *a * CM;
@@ -157,7 +177,7 @@ impl StyledDObject<'_> {
                 let o = o / CM;
                 let arc = Arc::from_center(a, o, b).unwrap();
                 arc.point_on(loc)
-            },
+            }
         }
     }
 
