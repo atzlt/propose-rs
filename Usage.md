@@ -11,9 +11,8 @@ This small project is still being developed.
 A Propose file consists of **lines**. A line can either be
 
 1. a declaration,
-2. a configuration,
-3. a drawing instruction, or
-4. a save instruction.
+2. a configuration, or
+3. a drawing instruction.
 
 ## Declaration
 
@@ -32,7 +31,7 @@ A more complex declaration looks like this:
 A = i XY, PQ;
 ```
 
-Before the equal sign `=` is the **target**, the name to be assigned to. In this case it's the name `A`. After that comes the **method**. A method is a pre-defined function; in this case it's `#`, which means _intersection_. After the method is a comma-separated list of **arguments**.
+Before the equal sign `=` is the **target**, the name to be assigned to. In this case it's the name `A`. After that comes the **method**. A method is a pre-defined function; in this case it's `i`, which means _intersection_. After the method is a comma-separated list of **arguments**.
 
 ### Identifiers
 
@@ -104,7 +103,7 @@ The value can be a string, a number or a number with `deg` suffix.
 ## Drawing
 
 ```
-draw A, B, c[label=c,loc=40deg], PQ[color=blue], ...
+draw A, B, c[label="c",loc=40deg], PQ[color="blue"], ...
 ```
 
 Draw some objects. **Currently does not support drawing (infinite) lines.**
@@ -114,7 +113,7 @@ You can inline some temporary configurations in square brackets `[]`. The config
 You can also fill a polygon:
 
 ```
-draw A-B-C-D-E[fill=#ff000033];
+draw A-B-C-D-E[fill="#ff000033"];
 ```
 
 or an 3-point arc:
@@ -145,26 +144,18 @@ You can control the position of the label by setting `loc`, `angle`, `dist`.
 
 `dist` is the distance between the label and `loc`.
 
-## Save file
-
-```
-save ./path/to/file.svg
-```
-
-Save the current image to a file. If you want to save several images during different construction progresses this can be helpful.
-
 # Using the CLI
 
 CLI is currently very simple. You provide and output by `-o` (if not present, the output path will be your input path with extension `.svg`). For example, `propose test_input/incenter.prs` saves the output to `test_input/incenter.svg`.
 
 # Appendix: List of Methods
 
-- `i` intersection. If a third argument is given, this should be one of the common points, and the another intersection will be placed at the first return value.
+- `i` intersection. If a third argument is given, this should be one of the common points, and the another intersection will be placed at the first returned value.
 - `perp` perpendicular. `perp <point>, <line>`
 - `par` parallel. `par <point>, <line>`
 - `proj` projection. `proj <point>, <line>`
-- `pb` perpendicular bisector. `.|. <point>, <point>`
-- `ab` angle bisector. `<- <point>, <point>, <point>` (interior angle bisector first, exterior second) or `<- <line>, <line>`.
+- `pb` perpendicular bisector. `pb <point>, <point>`
+- `ab` angle bisector. `ab <point>, <point>, <point>` (interior angle bisector first, exterior second) or `<- <line>, <line>`.
 - `tan` tangent line. `tan <point>, <circle>`
 - `outer-tan` outer common tangents.
 - `inner-tan` inner common tangents.
@@ -182,7 +173,7 @@ CLI is currently very simple. You provide and output by `-o` (if not present, th
 - `rfl` reflection in another object. When reflecting in a circle, this means inversion.
 - `inv` inversion. `inv <object>, <center=point> <power=number>` (`power` can be negative.)
 - `rot` rotation. `rot <object>, <center=point> <angle=number>`
-- `scl` scale. `scale <object> <center=point>, <ratio=number>` (`ratio` can be nagative.)
+- `scl` scale. `scl <object> <center=point>, <ratio=number>` (`ratio` can be nagative.)
 
 ---
 
@@ -201,4 +192,4 @@ These methods all accept a triangle as the single input.
 And some other functions related to triangles:
 
 - `bary` From barycentrics. `bary <triangle>, <number>, <number>, <number>`
-- `isog-conj` Isogonal Conjugate. `isog-cong <triangle>, <point>`
+- `isog-conj` Isogonal Conjugate. `isog-conj <triangle>, <point>`
