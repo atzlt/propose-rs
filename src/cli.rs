@@ -20,14 +20,11 @@ struct Cli {
     /// Extension to detect.
     ///
     /// Only have effect when input given is a directory.
-    #[arg(long = "ext", short, default_value_t = String::from("prs"))]
+    #[arg(long = "ext", short = 'x', default_value_t = String::from("prs"))]
     extension: String,
-    /// Do not save file.
-    ///
-    /// Only have effect when input given is a file.
-    /// Ignores `save` statements.
-    #[arg(long = "no-save", short = 'S')]
-    no_save: bool,
+    /// Do not save any file.
+    #[arg(long = "dry-run")]
+    dry_run: bool,
 }
 
 macro_rules! ok_or_print {
@@ -52,7 +49,7 @@ pub fn cli_main() -> Result<()> {
         let file = fs::read_to_string(input)?;
         let mut interpreter = InterpreterState::new();
         ok_or_print!(interpreter.interpret(&file), "Cannot interpret file: {}");
-        if !cli.no_save {
+        if !cli.dry_run {
             ok_or_print!(
                 fs::write(output, interpreter.emit()?),
                 "Cannot save to output: {}"
@@ -69,10 +66,12 @@ pub fn cli_main() -> Result<()> {
                     let output = input.with_extension("svg");
                     let file = fs::read_to_string(input)?;
                     ok_or_print!(interpreter.interpret(&file), "Cannot interpret file: {}");
-                    ok_or_print!(
-                        fs::write(output, interpreter.emit()?),
-                        "Cannot save to output: {}"
-                    );
+                    if !cli.dry_run {
+                        ok_or_print!(
+                            fs::write(output, interpreter.emit()?),
+                            "Cannot save to output: {}"
+                        );
+                    }
                     interpreter.clear();
                 }
             }
